@@ -104,76 +104,28 @@ document.getElementById("formArea").innerHTML=`
 
 <button class="btn" onclick="saveData()">Save Data</button>
 `;
+
+loadData(); // ✅ LOAD SAVED DATA
 }
 
-/* COVER LETTER */
-function showCover(){
-startBuilder();
+/* LOAD DATA */
+function loadData(){
+let data = JSON.parse(localStorage.getItem("resumeData"));
+if(!data) return;
 
-document.getElementById("formArea").innerHTML=`
-<h2>Cover Letter</h2>
-
-<input id="cname" placeholder="Your Name">
-<input id="company" placeholder="Company Name">
-<input id="role" placeholder="Job Role">
-
-<textarea id="letter" placeholder="Write your cover letter"></textarea>
-`;
+document.getElementById("name").value = data.name || "";
+document.getElementById("email").value = data.email || "";
+document.getElementById("phone").value = data.phone || "";
+document.getElementById("location").value = data.location || "";
+document.getElementById("summary").value = data.summary || "";
+document.getElementById("skills").value = data.skills || "";
+document.getElementById("education").value = data.education || "";
+document.getElementById("experience").value = data.experience || "";
+document.getElementById("projects").value = data.projects || "";
+document.getElementById("achievements").value = data.achievements || "";
 }
 
-/* GLOBAL LIVE PREVIEW (NO DUPLICATE) */
-document.addEventListener("input", updatePreview);
-
-function updatePreview(){
-
-// RESUME
-if(document.getElementById("name")){
-let n=document.getElementById("name")?.value||"";
-let e=document.getElementById("email")?.value||"";
-let p=document.getElementById("phone")?.value||"";
-let l=document.getElementById("location")?.value||"";
-let s=document.getElementById("summary")?.value||"";
-let sk=document.getElementById("skills")?.value||"";
-let ed=document.getElementById("education")?.value||"";
-let ex=document.getElementById("experience")?.value||"";
-let pr=document.getElementById("projects")?.value||"";
-let ac=document.getElementById("achievements")?.value||"";
-
-let html="";
-
-if(n) html+=`<h2 style="text-align:center">${n}</h2>`;
-if(e||p||l) html+=`<p style="text-align:center">${l} ${p?"| "+p:""} ${e?"| "+e:""}</p>`;
-
-if(s) html+=`<hr><h3>Professional Summary</h3><p>${s}</p>`;
-if(ed) html+=`<hr><h3>Education</h3><p>${ed}</p>`;
-if(sk) html+=`<hr><h3>Core Competencies</h3><p>${sk}</p>`;
-if(ex) html+=`<hr><h3>Work Experience</h3><p>${ex}</p>`;
-if(pr) html+=`<hr><h3>Technical Projects</h3><p>${pr}</p>`;
-if(ac) html+=`<hr><h3>Honours & Achievements</h3><p>${ac}</p>`;
-
-document.getElementById("contentArea").innerHTML=html||"Start entering details...";
-}
-
-// COVER LETTER
-if(document.getElementById("cname")){
-let cn=document.getElementById("cname")?.value||"";
-let comp=document.getElementById("company")?.value||"";
-let role=document.getElementById("role")?.value||"";
-let letter=document.getElementById("letter")?.value||"";
-
-/* STORE */
-localStorage.setItem("coverLetterData",JSON.stringify({cn,comp,role,letter}));
-
-document.getElementById("contentArea").innerHTML=`
-<h2>${cn}</h2>
-<p>To: ${comp}</p>
-<p>Subject: ${role}</p>
-<p>${letter}</p>
-`;
-}
-}
-
-/* SAVE DATA (NO AUTO DOWNLOAD) */
+/* SAVE DATA */
 function saveData(){
 
 let data={
@@ -191,10 +143,44 @@ achievements:document.getElementById("achievements")?.value||""
 
 localStorage.setItem("resumeData",JSON.stringify(data));
 
-alert("Data Saved Successfully!");
+alert("Saved Successfully!");
 }
 
-/* PDF DOWNLOAD (ONLY BUTTON) */
+/* LIVE PREVIEW */
+document.addEventListener("input", updatePreview);
+
+function updatePreview(){
+
+if(document.getElementById("name")){
+let n=document.getElementById("name").value||"";
+let e=document.getElementById("email").value||"";
+let p=document.getElementById("phone").value||"";
+let l=document.getElementById("location").value||"";
+let s=document.getElementById("summary").value||"";
+let sk=document.getElementById("skills").value||"";
+let ed=document.getElementById("education").value||"";
+let ex=document.getElementById("experience").value||"";
+let pr=document.getElementById("projects").value||"";
+let ac=document.getElementById("achievements").value||"";
+
+let html="";
+
+if(n) html+=`<h2 style="text-align:center">${n}</h2>`;
+if(e||p||l) html+=`<p style="text-align:center">${l} ${p?"| "+p:""} ${e?"| "+e:""}</p>`;
+
+if(s) html+=`<hr><h3>Professional Summary</h3><p>${s}</p>`;
+if(ed) html+=`<hr><h3>Education</h3><p>${ed}</p>`;
+if(sk) html+=`<hr><h3>Core Competencies</h3><p>${sk}</p>`;
+if(ex) html+=`<hr><h3>Work Experience</h3><p>${ex}</p>`;
+if(pr) html+=`<hr><h3>Technical Projects</h3><p>${pr}</p>`;
+if(ac) html+=`<hr><h3>Honours & Achievements</h3><p>${ac}</p>`;
+
+document.getElementById("contentArea").innerHTML=html||"Start entering details...";
+}
+
+}
+
+/* DOWNLOAD PDF */
 function downloadPDF(){
 
 const { jsPDF } = window.jspdf;
@@ -206,22 +192,32 @@ let lines=doc.splitTextToSize(text,180);
 doc.text(lines,10,10);
 
 // OPEN
-let url=doc.output("bloburl");
-window.open(url);
+window.open(doc.output("bloburl"));
 
 // DOWNLOAD
 doc.save("My_Resume.pdf");
 }
 
 /* LOGIN */
-function showLogin(){
-document.getElementById("loginBox").style.display="block";
-}
+function showLogin(){document.getElementById("loginBox").style.display="block";}
 function login(){
 localStorage.setItem("user",document.getElementById("user").value);
 localStorage.setItem("pass",document.getElementById("pass").value);
 alert("Login Saved");
 document.getElementById("loginBox").style.display="none";
+}
+
+/* COVER LETTER */
+function showCover(){
+startBuilder();
+
+document.getElementById("formArea").innerHTML=`
+<h2>Cover Letter</h2>
+<input id="cname" placeholder="Your Name">
+<input id="company" placeholder="Company Name">
+<input id="role" placeholder="Job Role">
+<textarea id="letter" placeholder="Write your cover letter"></textarea>
+`;
 }
 
 /* UPLOAD */
