@@ -2,36 +2,115 @@
 <html>
 <head>
 <title>Resume Builder Pro</title>
-<link rel="stylesheet" href="style.css">
+
+<style>
+body{
+font-family: Arial;
+margin:0;
+}
+
+/* LOGIN */
+#loginPage{
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+height:100vh;
+background:#f0f0f0;
+}
+
+#loginPage input{
+margin:5px;
+padding:10px;
+width:220px;
+}
+
+#app{
+display:none;
+}
+
+/* TOP BAR */
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:10px;
+background:#4a6cf7;
+color:white;
+}
+
+/* LAYOUT */
+.container{
+display:flex;
+}
+
+.left{
+width:40%;
+padding:20px;
+background:#f4f4f4;
+height:90vh;
+overflow:auto;
+}
+
+.right{
+width:60%;
+padding:20px;
+}
+
+input, textarea{
+width:100%;
+padding:8px;
+margin-bottom:10px;
+}
+
+button{
+padding:10px;
+margin:5px;
+background:#4a6cf7;
+color:white;
+border:none;
+cursor:pointer;
+}
+
+.preview{
+background:white;
+padding:20px;
+border:1px solid #ccc;
+min-height:85vh;
+}
+
+hr{
+border:0;
+border-top:1px solid #ccc;
+}
+</style>
 </head>
 
 <body>
 
-<!-- ================= LOGIN PAGE ================= -->
-<div id="loginPage" class="loginPage">
-  <h2>Login</h2>
-
-  <input id="loginEmail" placeholder="Email">
-  <input id="loginPass" type="password" placeholder="Password">
-
-  <button onclick="login()">Login</button>
+<!-- LOGIN -->
+<div id="loginPage">
+<h2>Login</h2>
+<input id="loginEmail" placeholder="Email">
+<input id="loginPass" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
 </div>
 
-<!-- ================= MAIN APP ================= -->
-<div id="app" class="app hidden">
+<!-- APP -->
+<div id="app">
 
-<!-- TOP BAR -->
 <div class="topbar">
-  <h2>Resume Builder</h2>
-
-  <button onclick="saveData()">Save</button>
-  <button onclick="downloadPDF()">Download PDF</button>
-  <button onclick="logout()">Logout</button>
+<h2>Resume Builder</h2>
+<div>
+<button onclick="saveData()">Save</button>
+<button onclick="downloadPDF()">Download</button>
+<button onclick="logout()">Logout</button>
+</div>
 </div>
 
 <div class="container">
 
-<!-- LEFT INPUT -->
+<!-- LEFT -->
 <div class="left">
 
 <input id="name" placeholder="Full Name">
@@ -55,7 +134,7 @@
 
 </div>
 
-<!-- RIGHT PREVIEW -->
+<!-- RIGHT -->
 <div class="right">
 <div id="preview" class="preview">Start typing...</div>
 </div>
@@ -63,6 +142,128 @@
 </div>
 </div>
 
-<script src="script.js"></script>
+<script>
+
+/* LOGIN */
+function login(){
+let e=document.getElementById("loginEmail").value;
+let p=document.getElementById("loginPass").value;
+if(e && p){
+document.getElementById("loginPage").style.display="none";
+document.getElementById("app").style.display="block";
+}
+}
+
+function logout(){
+document.getElementById("loginPage").style.display="flex";
+document.getElementById("app").style.display="none";
+}
+
+/* GET VALUE */
+function get(id){
+return document.getElementById(id).value.trim();
+}
+
+/* RESUME */
+function renderResume(){
+
+let name=get("name");
+let email=get("email");
+let phone=get("phone");
+let location=get("location");
+
+let html=`
+<div style="text-align:center;">
+<h1>${name || "Your Name"}</h1>
+<p>${location||""} | ${phone||""} | ${email||""}</p>
+<hr>
+</div>
+`;
+
+function section(t,v){
+if(!v) return "";
+return `
+<div style="margin-top:15px;">
+<h3 style="border-bottom:2px solid #4a6cf7;padding-bottom:5px;">
+${t}
+</h3>
+<p style="white-space:pre-line;">${v}</p>
+<hr>
+</div>
+`;
+}
+
+html+=section("Summary",get("summary"));
+html+=section("Education",get("education"));
+html+=section("Skills",get("skills"));
+html+=section("Experience",get("experience"));
+html+=section("Projects",get("projects"));
+html+=section("Achievements",get("achievements"));
+
+document.getElementById("preview").innerHTML=html;
+}
+
+/* COVER LETTER */
+function renderCover(){
+
+let name=get("name");
+let email=get("email");
+let phone=get("phone");
+
+let cover=get("coverLetter");
+
+document.getElementById("preview").innerHTML=`
+<div style="text-align:center;">
+<h1>${name||""}</h1>
+<p>${phone||""} | ${email||""}</p>
+<hr>
+</div>
+
+<h3 style="border-bottom:2px solid #4a6cf7;">Cover Letter</h3>
+<p style="white-space:pre-line;">${cover||""}</p>
+`;
+}
+
+/* SAVE FIXED */
+function saveData(){
+
+let data={
+name:get("name"),
+email:get("email"),
+phone:get("phone"),
+location:get("location"),
+summary:get("summary"),
+education:get("education"),
+skills:get("skills"),
+experience:get("experience"),
+projects:get("projects"),
+achievements:get("achievements"),
+coverLetter:get("coverLetter")
+};
+
+localStorage.setItem("resumeAppFINAL",JSON.stringify(data));
+alert("Saved Successfully!");
+}
+
+/* LOAD FIXED */
+window.onload=function(){
+let d=JSON.parse(localStorage.getItem("resumeAppFINAL"));
+
+if(d){
+Object.keys(d).forEach(k=>{
+if(document.getElementById(k)){
+document.getElementById(k).value=d[k];
+}
+});
+}
+};
+
+/* DOWNLOAD */
+function downloadPDF(){
+window.print();
+}
+
+</script>
+
 </body>
 </html>
