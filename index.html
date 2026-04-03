@@ -130,7 +130,6 @@ padding:20px;
 border-radius:10px;
 box-shadow:0 0 10px gray;
 }
-
 </style>
 </head>
 
@@ -199,20 +198,20 @@ box-shadow:0 0 10px gray;
 
 /* NAVIGATION */
 function startBuilder(){
-home.style.display="none";
-builder.style.display="block";
+document.getElementById("home").style.display="none";
+document.getElementById("builder").style.display="block";
 showResume();
 }
 
 function goHome(){
-home.style.display="block";
-builder.style.display="none";
+document.getElementById("home").style.display="block";
+document.getElementById("builder").style.display="none";
 }
 
 /* RESUME FORM */
 function showResume(){
 
-formArea.innerHTML=`
+document.getElementById("formArea").innerHTML=`
 <h2>Resume Details</h2>
 
 <input id="fullName" placeholder="Full Name">
@@ -230,51 +229,14 @@ formArea.innerHTML=`
 <button class="btn" onclick="saveData()">Save & Download</button>
 `;
 
+setTimeout(()=>{
 attachResumeListener();
 loadData();
+updatePreview();
+},100);
 }
 
-/* COVER LETTER */
-function showCover(){
-
-startBuilder();
-
-formArea.innerHTML=`
-<h2>Cover Letter</h2>
-
-<input id="cname" placeholder="Your Name">
-<input id="company" placeholder="Company Name">
-<input id="role" placeholder="Job Role">
-
-<textarea id="letter" placeholder="Write Cover Letter"></textarea>
-
-<button class="btn" onclick="downloadPDF()">Download PDF</button>
-`;
-
-document.oninput=function(){
-
-contentArea.innerHTML=`
-<h2 style="text-align:center">${cname.value || ""}</h2>
-<p><b>To:</b> ${company.value || ""}</p>
-<p><b>Role:</b> ${role.value || ""}</p>
-<hr>
-<p>${letter.value || ""}</p>
-`;
-};
-}
-
-/* LOGIN */
-function showLogin(){
-loginBox.style.display="block";
-}
-
-function login(){
-localStorage.setItem("user",user.value);
-alert("Login saved");
-loginBox.style.display="none";
-}
-
-/* SAVE DATA */
+/* SAVE */
 function saveData(){
 
 const data={
@@ -291,11 +253,10 @@ achievements:document.getElementById("achievements").value
 };
 
 localStorage.setItem("resumeData",JSON.stringify(data));
-
 downloadPDF();
 }
 
-/* LOAD DATA */
+/* LOAD */
 function loadData(){
 
 const saved=localStorage.getItem("resumeData");
@@ -303,40 +264,53 @@ if(!saved) return;
 
 const data=JSON.parse(saved);
 
-document.getElementById("fullName").value=data.fullName||"";
-document.getElementById("email").value=data.email||"";
-document.getElementById("phone").value=data.phone||"";
-document.getElementById("location").value=data.location||"";
-document.getElementById("summary").value=data.summary||"";
-document.getElementById("skills").value=data.skills||"";
-document.getElementById("education").value=data.education||"";
-document.getElementById("experience").value=data.experience||"";
-document.getElementById("projects").value=data.projects||"";
-document.getElementById("achievements").value=data.achievements||"";
+Object.keys(data).forEach(id=>{
+let el=document.getElementById(id);
+if(el) el.value=data[id];
+});
 }
 
-/* LIVE PREVIEW */
+/* FIXED LIVE PREVIEW */
 function attachResumeListener(){
 
-document.addEventListener("input",function(){
+let fields=[
+"fullName","email","phone","location",
+"summary","skills","education","experience","projects","achievements"
+];
 
-let fullName=document.getElementById("fullName").value;
-let email=document.getElementById("email").value;
-let phone=document.getElementById("phone").value;
-let location=document.getElementById("location").value;
+fields.forEach(id=>{
+let el=document.getElementById(id);
+if(el){
+el.addEventListener("input",updatePreview);
+}
+});
+}
 
-let summary=document.getElementById("summary").value;
-let skills=document.getElementById("skills").value;
-let education=document.getElementById("education").value;
-let experience=document.getElementById("experience").value;
-let projects=document.getElementById("projects").value;
-let achievements=document.getElementById("achievements").value;
+/* ✅ THIS FIX SOLVES YOUR NAME ISSUE */
+function updatePreview(){
+
+let fullName=document.getElementById("fullName")?.value || "";
+let email=document.getElementById("email")?.value || "";
+let phone=document.getElementById("phone")?.value || "";
+let location=document.getElementById("location")?.value || "";
+
+let summary=document.getElementById("summary")?.value || "";
+let skills=document.getElementById("skills")?.value || "";
+let education=document.getElementById("education")?.value || "";
+let experience=document.getElementById("experience")?.value || "";
+let projects=document.getElementById("projects")?.value || "";
+let achievements=document.getElementById("achievements")?.value || "";
 
 let html="";
 
-if(fullName) html+=`<h2 style="text-align:center">${fullName}</h2>`;
-if(email||phone||location)
+/* NAME FIXED */
+if(fullName.trim()!==""){
+html+=`<h2 style="text-align:center">${fullName}</h2>`;
+}
+
+if(email || phone || location){
 html+=`<p style="text-align:center">${location} | ${phone} | ${email}</p>`;
+}
 
 if(summary) html+=`<hr><h3>Summary</h3><p>${summary}</p>`;
 if(skills) html+=`<hr><h3>Skills</h3><p>${skills}</p>`;
@@ -345,22 +319,61 @@ if(experience) html+=`<hr><h3>Experience</h3><p>${experience}</p>`;
 if(projects) html+=`<hr><h3>Projects</h3><p>${projects}</p>`;
 if(achievements) html+=`<hr><h3>Achievements</h3><p>${achievements}</p>`;
 
-contentArea.innerHTML=html||"Start entering details...";
-});
-
+document.getElementById("contentArea").innerHTML=
+html || "Start entering details...";
 }
 
-/* PDF DOWNLOAD */
+/* PDF */
 function downloadPDF(){
 
 const { jsPDF }=window.jspdf;
 let doc=new jsPDF();
 
-let text=contentArea.innerText;
+let text=document.getElementById("contentArea").innerText;
 let lines=doc.splitTextToSize(text,180);
 
 doc.text(lines,10,10);
 doc.save("Resume.pdf");
+}
+
+/* LOGIN */
+function showLogin(){
+document.getElementById("loginBox").style.display="block";
+}
+
+function login(){
+localStorage.setItem("user",document.getElementById("user").value);
+alert("Login saved");
+document.getElementById("loginBox").style.display="none";
+}
+
+/* COVER LETTER */
+function showCover(){
+
+startBuilder();
+
+document.getElementById("formArea").innerHTML=`
+<h2>Cover Letter</h2>
+
+<input id="cname" placeholder="Your Name">
+<input id="company" placeholder="Company Name">
+<input id="role" placeholder="Job Role">
+
+<textarea id="letter" placeholder="Write Cover Letter"></textarea>
+
+<button class="btn" onclick="downloadPDF()">Download PDF</button>
+`;
+
+document.oninput=function(){
+
+document.getElementById("contentArea").innerHTML=`
+<h2 style="text-align:center">${document.getElementById("cname").value || ""}</h2>
+<p><b>To:</b> ${document.getElementById("company").value || ""}</p>
+<p><b>Role:</b> ${document.getElementById("role").value || ""}</p>
+<hr>
+<p>${document.getElementById("letter").value || ""}</p>
+`;
+};
 }
 
 /* UPLOAD */
