@@ -6,7 +6,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body{margin:0;font-family:Arial}
+body{
+margin:0;
+font-family:Arial;
+}
 
 /* NAVBAR */
 .navbar{
@@ -16,8 +19,10 @@ padding:15px 40px;
 background:#fff;
 box-shadow:0 2px 5px rgba(0,0,0,0.1);
 }
+
 .navbar h2{color:#4a6cf7}
 .navbar a{margin:0 10px;cursor:pointer}
+
 .btn{
 background:#4a6cf7;
 color:#fff;
@@ -35,13 +40,13 @@ text-align:center;
 padding:80px;
 }
 
-/* FEATURES */
 .features{
 display:flex;
 justify-content:center;
 gap:20px;
 padding:40px;
 }
+
 .box{
 background:#f4f4f4;
 padding:20px;
@@ -51,9 +56,17 @@ text-align:center;
 }
 
 /* BUILDER */
-#builder{display:none;padding:20px;}
-.container{display:flex;gap:20px;}
-.form{width:40%;}
+#builder{
+display:none;
+padding:20px;
+}
+
+.container{
+display:flex;
+gap:20px;
+}
+
+.form{width:40%}
 .preview{
 width:60%;
 background:#fff;
@@ -61,7 +74,6 @@ padding:20px;
 border:1px solid #ccc;
 }
 
-/* INPUT */
 input,textarea{
 width:100%;
 margin:8px 0;
@@ -87,10 +99,10 @@ box-shadow:0 0 10px gray;
 <div class="navbar">
 <h2>ResumeBuilder</h2>
 <div>
-<a onclick="goHome()">Resume</a>
-<a onclick="showResume()">Resume Builder</a>
+<a onclick="goHome()">Home</a>
+<a onclick="showResume()">Resume</a>
 <a onclick="showCover()">Cover Letter</a>
-<a onclick="showLogin()">Sign In</a>
+<a onclick="showLogin()">Login</a>
 <button class="btn" onclick="startBuilder()">Get Started</button>
 </div>
 </div>
@@ -98,17 +110,15 @@ box-shadow:0 0 10px gray;
 <!-- HOME -->
 <div id="home">
 <div class="hero">
-<h1>Create a Professional Resume</h1>
-<p>Build your resume quickly</p>
-
-<button class="btn" onclick="startBuilder()">Create My Resume</button>
-<button class="btn" onclick="uploadResume()">Upload Resume</button>
+<h1>Create Professional Resume</h1>
+<p>Build Resume & Cover Letter Easily</p>
+<button class="btn" onclick="startBuilder()">Start</button>
 </div>
 
 <div class="features">
-<div class="box">AI Writer</div>
-<div class="box">Easy to Match</div>
-<div class="box">Helpful Resources</div>
+<div class="box">Fast</div>
+<div class="box">Easy</div>
+<div class="box">Free</div>
 </div>
 </div>
 
@@ -119,11 +129,8 @@ box-shadow:0 0 10px gray;
 <div class="form" id="formArea"></div>
 
 <div class="preview">
-<div style="display:flex;justify-content:space-between;">
 <h3>Preview</h3>
 <button class="btn" onclick="downloadPDF()">Download PDF</button>
-</div>
-
 <hr>
 <div id="contentArea">Start entering details...</div>
 </div>
@@ -141,6 +148,8 @@ box-shadow:0 0 10px gray;
 
 <script>
 
+let mode="resume";
+
 /* NAVIGATION */
 function startBuilder(){
 home.style.display="none";
@@ -155,8 +164,10 @@ builder.style.display="none";
 
 /* ================= RESUME ================= */
 function showResume(){
+mode="resume";
+
 formArea.innerHTML=`
-<h2>Enter Details</h2>
+<h2>Resume Builder</h2>
 
 <input id="name" placeholder="Full Name">
 <input id="email" placeholder="Email">
@@ -170,7 +181,7 @@ formArea.innerHTML=`
 <textarea id="projects" placeholder="Projects"></textarea>
 <textarea id="achievements" placeholder="Achievements"></textarea>
 
-<button class="btn" onclick="saveData()">Save & Download</button>
+<button class="btn" onclick="saveData()">Save</button>
 `;
 
 loadResumeData();
@@ -181,21 +192,21 @@ attachResumeListener();
 function saveData(){
 
 let data={
-name:document.getElementById("name").value || "",
-email:document.getElementById("email").value || "",
-phone:document.getElementById("phone").value || "",
-location:document.getElementById("location").value || "",
-summary:document.getElementById("summary").value || "",
-skills:document.getElementById("skills").value || "",
-education:document.getElementById("education").value || "",
-experience:document.getElementById("experience").value || "",
-projects:document.getElementById("projects").value || "",
-achievements:document.getElementById("achievements").value || ""
+name:document.getElementById("name").value||"",
+email:document.getElementById("email").value||"",
+phone:document.getElementById("phone").value||"",
+location:document.getElementById("location").value||"",
+summary:document.getElementById("summary").value||"",
+skills:document.getElementById("skills").value||"",
+education:document.getElementById("education").value||"",
+experience:document.getElementById("experience").value||"",
+projects:document.getElementById("projects").value||"",
+achievements:document.getElementById("achievements").value||""
 };
 
-localStorage.setItem("resumeData", JSON.stringify(data));
+localStorage.setItem("resumeData",JSON.stringify(data));
 
-alert("Saved!");
+alert("Resume Saved");
 downloadPDF();
 }
 
@@ -219,32 +230,36 @@ achievements.value=data.achievements||"";
 },100);
 }
 
-/* PREVIEW */
+/* RESUME PREVIEW */
 function attachResumeListener(){
-document.oninput=function(){
+
+document.addEventListener("input",function(){
+
+if(mode!=="resume") return;
 
 let html="";
 
 if(name.value) html+=`<h2 style="text-align:center">${name.value}</h2>`;
+
 if(email.value||phone.value||location.value)
 html+=`<p style="text-align:center">
-${location.value} ${phone.value?" | "+phone.value:""} ${email.value?" | "+email.value:""}
+${location.value} ${phone.value?"|"+phone.value:""} ${email.value?"|"+email.value:""}
 </p>`;
 
 if(summary.value) html+=`<hr><h3>Summary</h3><p>${summary.value}</p>`;
-if(education.value) html+=`<hr><h3>Education</h3><p>${education.value}</p>`;
 if(skills.value) html+=`<hr><h3>Skills</h3><p>${skills.value}</p>`;
+if(education.value) html+=`<hr><h3>Education</h3><p>${education.value}</p>`;
 if(experience.value) html+=`<hr><h3>Experience</h3><p>${experience.value}</p>`;
 if(projects.value) html+=`<hr><h3>Projects</h3><p>${projects.value}</p>`;
 if(achievements.value) html+=`<hr><h3>Achievements</h3><p>${achievements.value}</p>`;
 
-contentArea.innerHTML=html||"Start entering details...";
-};
+contentArea.innerHTML=html;
+});
 }
 
 /* ================= COVER LETTER ================= */
 function showCover(){
-startBuilder();
+mode="cover";
 
 formArea.innerHTML=`
 <h2>Cover Letter</h2>
@@ -252,15 +267,17 @@ formArea.innerHTML=`
 <input id="cname" placeholder="Your Name">
 <input id="company" placeholder="Company">
 <input id="role" placeholder="Role">
-
 <textarea id="letter" placeholder="Write letter"></textarea>
 
-<button class="btn" onclick="downloadPDF()">Download</button>
+<button class="btn" onclick="saveCover()">Save</button>
 `;
 
 loadCoverData();
+attachCoverListener();
+}
 
-document.oninput=function(){
+/* SAVE COVER */
+function saveCover(){
 
 let data={
 cn:cname.value||"",
@@ -269,20 +286,15 @@ role:role.value||"",
 letter:letter.value||""
 };
 
-localStorage.setItem("coverLetterData",JSON.stringify(data));
+localStorage.setItem("coverData",JSON.stringify(data));
 
-contentArea.innerHTML=`
-<h2>${data.cn}</h2>
-<p><b>To:</b> ${data.comp}</p>
-<p><b>Subject:</b> ${data.role}</p>
-<p>${data.letter}</p>
-`;
-};
+alert("Cover Letter Saved");
+downloadPDF();
 }
 
 /* LOAD COVER */
 function loadCoverData(){
-let data=JSON.parse(localStorage.getItem("coverLetterData")||"{}");
+let data=JSON.parse(localStorage.getItem("coverData")||"{}");
 
 setTimeout(()=>{
 if(document.getElementById("cname")){
@@ -294,12 +306,31 @@ letter.value=data.letter||"";
 },100);
 }
 
+/* COVER LISTENER */
+function attachCoverListener(){
+
+document.addEventListener("input",function(){
+
+if(mode!=="cover") return;
+
+let cn=cname.value||"";
+let comp=company.value||"";
+let roleVal=role.value||"";
+let letterVal=letter.value||"";
+
+contentArea.innerHTML=`
+<h2>${cn}</h2>
+<p><b>To:</b> ${comp}</p>
+<p><b>Subject:</b> ${roleVal}</p>
+<p>${letterVal}</p>
+`;
+});
+}
+
 /* LOGIN */
 function showLogin(){loginBox.style.display="block";}
 function login(){
-localStorage.setItem("user",user.value);
-localStorage.setItem("pass",pass.value);
-alert("Saved");
+alert("Login Saved");
 loginBox.style.display="none";
 }
 
@@ -313,16 +344,6 @@ callback:function(doc){
 doc.save("document.pdf");
 }
 });
-}
-
-/* UPLOAD */
-function uploadResume(){
-let input=document.createElement("input");
-input.type="file";
-input.onchange=e=>{
-alert("File uploaded");
-};
-input.click();
 }
 
 </script>
