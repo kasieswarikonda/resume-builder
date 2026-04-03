@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Resume Builder Pro</title>
+<title>Resume Builder</title>
 
+<!-- PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
@@ -10,47 +11,73 @@ body{margin:0;font-family:Arial}
 
 /* NAVBAR */
 .navbar{
-display:flex;justify-content:space-between;align-items:center;
-padding:15px 40px;background:#fff;
+display:flex;
+justify-content:space-between;
+padding:15px 40px;
+background:#fff;
 box-shadow:0 2px 5px rgba(0,0,0,0.1);
 }
-.navbar div{display:flex;gap:25px;}
-.navbar a{cursor:pointer;text-decoration:none;color:black;font-weight:500;}
-.navbar a:hover{color:#4a6cf7;}
-
+.navbar h2{color:#4a6cf7}
+.navbar a{margin:0 10px;cursor:pointer}
 .btn{
-background:#4a6cf7;color:#fff;padding:8px 15px;
-border:none;border-radius:5px;cursor:pointer;
+background:#4a6cf7;
+color:#fff;
+padding:8px 15px;
+border:none;
+cursor:pointer;
+border-radius:5px;
 }
 
 /* HERO */
 .hero{
 background:linear-gradient(to right,#4a6cf7,#6a8dff);
-color:white;text-align:center;padding:80px;
+color:white;
+text-align:center;
+padding:80px;
 }
 
 /* FEATURES */
 .features{
-display:flex;justify-content:center;gap:20px;padding:40px;
+display:flex;
+justify-content:center;
+gap:20px;
+padding:40px;
 }
 .box{
-background:#f4f4f4;padding:20px;border-radius:10px;width:200px;text-align:center;
+background:#f4f4f4;
+padding:20px;
+border-radius:10px;
+width:200px;
+text-align:center;
 }
 
 /* BUILDER */
 #builder{display:none;padding:20px;}
 .container{display:flex;gap:20px;}
 .form{width:40%;}
-.preview{width:60%;background:#fff;padding:20px;border:1px solid #ccc;}
+.preview{
+width:60%;
+background:#fff;
+padding:20px;
+border:1px solid #ccc;
+}
 
+/* INPUT */
 input,textarea{
-width:100%;margin:8px 0;padding:10px;
+width:100%;
+margin:8px 0;
+padding:10px;
 }
 
 /* LOGIN */
 #loginBox{
-display:none;position:fixed;top:30%;left:40%;
-background:white;padding:20px;box-shadow:0 0 10px gray;
+display:none;
+position:fixed;
+top:30%;
+left:40%;
+background:white;
+padding:20px;
+box-shadow:0 0 10px gray;
 }
 </style>
 </head>
@@ -73,7 +100,8 @@ background:white;padding:20px;box-shadow:0 0 10px gray;
 <div id="home">
 <div class="hero">
 <h1>Create a Professional Resume</h1>
-<p>Fast • Easy • Professional</p>
+<p>Build your resume quickly</p>
+
 <button class="btn" onclick="startBuilder()">Create My Resume</button>
 <button class="btn" onclick="uploadResume()">Upload Resume</button>
 </div>
@@ -89,15 +117,20 @@ background:white;padding:20px;box-shadow:0 0 10px gray;
 <div id="builder">
 <div class="container">
 
+<!-- FORM -->
 <div class="form" id="formArea"></div>
 
+<!-- PREVIEW -->
 <div class="preview">
+
 <div style="display:flex;justify-content:space-between;">
 <h3>Preview</h3>
 <button class="btn" onclick="downloadPDF()">Download PDF</button>
 </div>
+
 <hr>
 <div id="contentArea">Start entering details...</div>
+
 </div>
 
 </div>
@@ -124,10 +157,10 @@ home.style.display="block";
 builder.style.display="none";
 }
 
-/* ================= RESUME ================= */
+/* RESUME FORM */
 function showResume(){
 formArea.innerHTML=`
-<h2>Resume</h2>
+<h2>Enter Details</h2>
 
 <input id="name" placeholder="Full Name">
 <input id="email" placeholder="Email">
@@ -141,37 +174,13 @@ formArea.innerHTML=`
 <textarea id="projects" placeholder="Projects"></textarea>
 <textarea id="achievements" placeholder="Achievements"></textarea>
 
-<button class="btn" onclick="saveResume()">Save Resume</button>
+<button class="btn" onclick="saveData()">Save & Download</button>
 `;
 
-loadResume();
+attachResumeListener();
 }
 
-/* SAVE RESUME */
-function saveResume(){
-let data={
-name:name.value,email:email.value,phone:phone.value,
-location:location.value,summary:summary.value,
-skills:skills.value,education:education.value,
-experience:experience.value,projects:projects.value,
-achievements:achievements.value
-};
-localStorage.setItem("resumeData",JSON.stringify(data));
-alert("Resume Saved!");
-}
-
-/* LOAD RESUME */
-function loadResume(){
-let data=JSON.parse(localStorage.getItem("resumeData"));
-if(!data) return;
-name.value=data.name||""; email.value=data.email||"";
-phone.value=data.phone||""; location.value=data.location||"";
-summary.value=data.summary||""; skills.value=data.skills||"";
-education.value=data.education||""; experience.value=data.experience||"";
-projects.value=data.projects||""; achievements.value=data.achievements||"";
-}
-
-/* ================= COVER LETTER ================= */
+/* COVER LETTER */
 function showCover(){
 startBuilder();
 
@@ -181,65 +190,28 @@ formArea.innerHTML=`
 <input id="cname" placeholder="Your Name">
 <input id="company" placeholder="Company Name">
 <input id="role" placeholder="Job Role">
+
 <textarea id="letter" placeholder="Write your cover letter"></textarea>
 
-<button class="btn" onclick="saveCover()">Save Cover Letter</button>
+<button class="btn" onclick="downloadPDF()">Download</button>
 `;
 
-loadCover();
-}
+document.addEventListener("input",()=>{
+let cn=document.getElementById("cname")?.value||"";
+let comp=document.getElementById("company")?.value||"";
+let role=document.getElementById("role")?.value||"";
+let letter=document.getElementById("letter")?.value||"";
 
-/* SAVE COVER */
-function saveCover(){
-let data={
-name:cname.value,company:company.value,
-role:role.value,letter:letter.value
-};
-localStorage.setItem("coverLetterData",JSON.stringify(data));
-alert("Cover Letter Saved!");
-}
+/* STORE */
+localStorage.setItem("coverLetterData",JSON.stringify({cn,comp,role,letter}));
 
-/* LOAD COVER */
-function loadCover(){
-let data=JSON.parse(localStorage.getItem("coverLetterData"));
-if(!data) return;
-cname.value=data.name||""; company.value=data.company||"";
-role.value=data.role||""; letter.value=data.letter||"";
-}
-
-/* ================= PREVIEW ================= */
-document.addEventListener("input",function(){
-
-if(document.getElementById("name")){
-contentArea.innerHTML=`
-<h2>${name.value}</h2>
-<p>${location.value} | ${phone.value} | ${email.value}</p>
-<hr>
-<p>${summary.value}</p>
+document.getElementById("contentArea").innerHTML=`
+<h2>${cn}</h2>
+<p>To: ${comp}</p>
+<p>Subject: ${role}</p>
+<p>${letter}</p>
 `;
-}
-
-if(document.getElementById("cname")){
-contentArea.innerHTML=`
-<h2>${cname.value}</h2>
-<p>To: ${company.value}</p>
-<p><b>Subject:</b> ${role.value}</p>
-<hr>
-<p>${letter.value}</p>
-`;
-}
-
 });
-
-/* ================= PDF ================= */
-function downloadPDF(){
-const { jsPDF } = window.jspdf;
-let doc=new jsPDF();
-let text=contentArea.innerText;
-let lines=doc.splitTextToSize(text,180);
-doc.text(lines,10,10);
-window.open(doc.output("bloburl"));
-doc.save("Document.pdf");
 }
 
 /* LOGIN */
@@ -249,6 +221,83 @@ localStorage.setItem("user",user.value);
 localStorage.setItem("pass",pass.value);
 alert("Login Saved");
 loginBox.style.display="none";
+}
+
+/* SAVE + AUTO DOWNLOAD */
+function saveData(){
+
+let data={
+name:name.value,
+email:email.value,
+phone:phone.value,
+location:location.value,
+summary:summary.value,
+skills:skills.value,
+education:education.value,
+experience:experience.value,
+projects:projects.value,
+achievements:achievements.value
+};
+
+localStorage.setItem("resumeData",JSON.stringify(data));
+
+alert("Saved! Downloading...");
+
+downloadPDF();
+}
+
+/* RESUME PREVIEW FIX */
+function attachResumeListener(){
+
+document.addEventListener("input",()=>{
+
+let n=name?.value||"";
+let e=email?.value||"";
+let p=phone?.value||"";
+let l=location?.value||"";
+let s=summary?.value||"";
+let sk=skills?.value||"";
+let ed=education?.value||"";
+let ex=experience?.value||"";
+let pr=projects?.value||"";
+let ac=achievements?.value||"";
+
+let html="";
+
+if(n) html+=`<h2 style="text-align:center">${n}</h2>`;
+if(e||p||l) html+=`<p style="text-align:center">${l} ${p?"| "+p:""} ${e?"| "+e:""}</p>`;
+
+if(s) html+=`<hr><h3>Professional Summary</h3><p>${s}</p>`;
+if(ed) html+=`<hr><h3>Education</h3><p>${ed}</p>`;
+if(sk) html+=`<hr><h3>Core Competencies</h3><p>${sk}</p>`;
+if(ex) html+=`<hr><h3>Work Experience</h3><p>${ex}</p>`;
+if(pr) html+=`<hr><h3>Technical Projects</h3><p>${pr}</p>`;
+if(ac) html+=`<hr><h3>Honours & Achievements</h3><p>${ac}</p>`;
+
+document.getElementById("contentArea").innerHTML=html||"<h3>Start entering details...</h3>";
+
+});
+}
+
+/* PDF DOWNLOAD (OPEN + DOWNLOAD) */
+function downloadPDF(){
+
+const { jsPDF } = window.jspdf;
+let doc=new jsPDF();
+
+let text=document.getElementById("contentArea").innerText;
+let lines=doc.splitTextToSize(text,180);
+
+doc.text(lines,10,10);
+
+// OPEN
+let url=doc.output("bloburl");
+window.open(url);
+
+// DOWNLOAD
+doc.save("My_Document.pdf");
+
+localStorage.setItem("lastDownload",text);
 }
 
 /* UPLOAD */
