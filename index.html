@@ -3,7 +3,6 @@
 <head>
 <title>Resume Builder</title>
 
-<!-- PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
@@ -117,12 +116,9 @@ box-shadow:0 0 10px gray;
 <div id="builder">
 <div class="container">
 
-<!-- FORM -->
 <div class="form" id="formArea"></div>
 
-<!-- PREVIEW -->
 <div class="preview">
-
 <div style="display:flex;justify-content:space-between;">
 <h3>Preview</h3>
 <button class="btn" onclick="downloadPDF()">Download PDF</button>
@@ -130,7 +126,6 @@ box-shadow:0 0 10px gray;
 
 <hr>
 <div id="contentArea">Start entering details...</div>
-
 </div>
 
 </div>
@@ -152,12 +147,13 @@ home.style.display="none";
 builder.style.display="block";
 showResume();
 }
+
 function goHome(){
 home.style.display="block";
 builder.style.display="none";
 }
 
-/* RESUME FORM */
+/* ================= RESUME ================= */
 function showResume(){
 formArea.innerHTML=`
 <h2>Enter Details</h2>
@@ -167,20 +163,86 @@ formArea.innerHTML=`
 <input id="phone" placeholder="Phone">
 <input id="location" placeholder="Location">
 
-<textarea id="summary" placeholder="Professional Summary"></textarea>
-<textarea id="skills" placeholder="Core Competencies"></textarea>
+<textarea id="summary" placeholder="Summary"></textarea>
+<textarea id="skills" placeholder="Skills"></textarea>
 <textarea id="education" placeholder="Education"></textarea>
-<textarea id="experience" placeholder="Work Experience"></textarea>
+<textarea id="experience" placeholder="Experience"></textarea>
 <textarea id="projects" placeholder="Projects"></textarea>
 <textarea id="achievements" placeholder="Achievements"></textarea>
 
 <button class="btn" onclick="saveData()">Save & Download</button>
 `;
 
+loadResumeData();
 attachResumeListener();
 }
 
-/* COVER LETTER */
+/* SAVE RESUME */
+function saveData(){
+
+let data={
+name:document.getElementById("name").value || "",
+email:document.getElementById("email").value || "",
+phone:document.getElementById("phone").value || "",
+location:document.getElementById("location").value || "",
+summary:document.getElementById("summary").value || "",
+skills:document.getElementById("skills").value || "",
+education:document.getElementById("education").value || "",
+experience:document.getElementById("experience").value || "",
+projects:document.getElementById("projects").value || "",
+achievements:document.getElementById("achievements").value || ""
+};
+
+localStorage.setItem("resumeData", JSON.stringify(data));
+
+alert("Saved!");
+downloadPDF();
+}
+
+/* LOAD RESUME */
+function loadResumeData(){
+let data=JSON.parse(localStorage.getItem("resumeData")||"{}");
+
+setTimeout(()=>{
+if(document.getElementById("name")){
+name.value=data.name||"";
+email.value=data.email||"";
+phone.value=data.phone||"";
+location.value=data.location||"";
+summary.value=data.summary||"";
+skills.value=data.skills||"";
+education.value=data.education||"";
+experience.value=data.experience||"";
+projects.value=data.projects||"";
+achievements.value=data.achievements||"";
+}
+},100);
+}
+
+/* PREVIEW */
+function attachResumeListener(){
+document.oninput=function(){
+
+let html="";
+
+if(name.value) html+=`<h2 style="text-align:center">${name.value}</h2>`;
+if(email.value||phone.value||location.value)
+html+=`<p style="text-align:center">
+${location.value} ${phone.value?" | "+phone.value:""} ${email.value?" | "+email.value:""}
+</p>`;
+
+if(summary.value) html+=`<hr><h3>Summary</h3><p>${summary.value}</p>`;
+if(education.value) html+=`<hr><h3>Education</h3><p>${education.value}</p>`;
+if(skills.value) html+=`<hr><h3>Skills</h3><p>${skills.value}</p>`;
+if(experience.value) html+=`<hr><h3>Experience</h3><p>${experience.value}</p>`;
+if(projects.value) html+=`<hr><h3>Projects</h3><p>${projects.value}</p>`;
+if(achievements.value) html+=`<hr><h3>Achievements</h3><p>${achievements.value}</p>`;
+
+contentArea.innerHTML=html||"Start entering details...";
+};
+}
+
+/* ================= COVER LETTER ================= */
 function showCover(){
 startBuilder();
 
@@ -188,30 +250,48 @@ formArea.innerHTML=`
 <h2>Cover Letter</h2>
 
 <input id="cname" placeholder="Your Name">
-<input id="company" placeholder="Company Name">
-<input id="role" placeholder="Job Role">
+<input id="company" placeholder="Company">
+<input id="role" placeholder="Role">
 
-<textarea id="letter" placeholder="Write your cover letter"></textarea>
+<textarea id="letter" placeholder="Write letter"></textarea>
 
 <button class="btn" onclick="downloadPDF()">Download</button>
 `;
 
-document.addEventListener("input",()=>{
-let cn=document.getElementById("cname")?.value||"";
-let comp=document.getElementById("company")?.value||"";
-let role=document.getElementById("role")?.value||"";
-let letter=document.getElementById("letter")?.value||"";
+loadCoverData();
 
-/* STORE */
-localStorage.setItem("coverLetterData",JSON.stringify({cn,comp,role,letter}));
+document.oninput=function(){
 
-document.getElementById("contentArea").innerHTML=`
-<h2>${cn}</h2>
-<p>To: ${comp}</p>
-<p>Subject: ${role}</p>
-<p>${letter}</p>
+let data={
+cn:cname.value||"",
+comp:company.value||"",
+role:role.value||"",
+letter:letter.value||""
+};
+
+localStorage.setItem("coverLetterData",JSON.stringify(data));
+
+contentArea.innerHTML=`
+<h2>${data.cn}</h2>
+<p><b>To:</b> ${data.comp}</p>
+<p><b>Subject:</b> ${data.role}</p>
+<p>${data.letter}</p>
 `;
-});
+};
+}
+
+/* LOAD COVER */
+function loadCoverData(){
+let data=JSON.parse(localStorage.getItem("coverLetterData")||"{}");
+
+setTimeout(()=>{
+if(document.getElementById("cname")){
+cname.value=data.cn||"";
+company.value=data.comp||"";
+role.value=data.role||"";
+letter.value=data.letter||"";
+}
+},100);
 }
 
 /* LOGIN */
@@ -219,91 +299,29 @@ function showLogin(){loginBox.style.display="block";}
 function login(){
 localStorage.setItem("user",user.value);
 localStorage.setItem("pass",pass.value);
-alert("Login Saved");
+alert("Saved");
 loginBox.style.display="none";
 }
 
-/* SAVE + AUTO DOWNLOAD */
-function saveData(){
-
-let data={
-name:name.value,
-email:email.value,
-phone:phone.value,
-location:location.value,
-summary:summary.value,
-skills:skills.value,
-education:education.value,
-experience:experience.value,
-projects:projects.value,
-achievements:achievements.value
-};
-
-localStorage.setItem("resumeData",JSON.stringify(data));
-
-alert("Saved! Downloading...");
-
-downloadPDF();
-}
-
-/* RESUME PREVIEW FIX */
-function attachResumeListener(){
-
-document.addEventListener("input",()=>{
-
-let n=name?.value||"";
-let e=email?.value||"";
-let p=phone?.value||"";
-let l=location?.value||"";
-let s=summary?.value||"";
-let sk=skills?.value||"";
-let ed=education?.value||"";
-let ex=experience?.value||"";
-let pr=projects?.value||"";
-let ac=achievements?.value||"";
-
-let html="";
-
-if(n) html+=`<h2 style="text-align:center">${n}</h2>`;
-if(e||p||l) html+=`<p style="text-align:center">${l} ${p?"| "+p:""} ${e?"| "+e:""}</p>`;
-
-if(s) html+=`<hr><h3>Professional Summary</h3><p>${s}</p>`;
-if(ed) html+=`<hr><h3>Education</h3><p>${ed}</p>`;
-if(sk) html+=`<hr><h3>Core Competencies</h3><p>${sk}</p>`;
-if(ex) html+=`<hr><h3>Work Experience</h3><p>${ex}</p>`;
-if(pr) html+=`<hr><h3>Technical Projects</h3><p>${pr}</p>`;
-if(ac) html+=`<hr><h3>Honours & Achievements</h3><p>${ac}</p>`;
-
-document.getElementById("contentArea").innerHTML=html||"<h3>Start entering details...</h3>";
-
-});
-}
-
-/* PDF DOWNLOAD (OPEN + DOWNLOAD) */
+/* PDF */
 function downloadPDF(){
-
 const { jsPDF } = window.jspdf;
 let doc=new jsPDF();
 
-let text=document.getElementById("contentArea").innerText;
-let lines=doc.splitTextToSize(text,180);
-
-doc.text(lines,10,10);
-
-// OPEN
-let url=doc.output("bloburl");
-window.open(url);
-
-// DOWNLOAD
-doc.save("My_Document.pdf");
-
-localStorage.setItem("lastDownload",text);
+doc.html(contentArea,{
+callback:function(doc){
+doc.save("document.pdf");
+}
+});
 }
 
 /* UPLOAD */
 function uploadResume(){
 let input=document.createElement("input");
 input.type="file";
+input.onchange=e=>{
+alert("File uploaded");
+};
 input.click();
 }
 
