@@ -6,7 +6,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body{margin:0;font-family:Arial}
+body{
+margin:0;
+font-family:Arial;
+background:#f5f7ff;
+}
 
 /* NAVBAR */
 .navbar{
@@ -18,6 +22,7 @@ box-shadow:0 2px 5px rgba(0,0,0,0.1);
 }
 .navbar h2{color:#4a6cf7}
 .navbar a{margin:0 10px;cursor:pointer}
+
 .btn{
 background:#4a6cf7;
 color:#fff;
@@ -27,12 +32,44 @@ cursor:pointer;
 border-radius:5px;
 }
 
-/* HERO */
+.secondary{
+background:white;
+color:#4a6cf7;
+border:1px solid #4a6cf7;
+}
+
+/* HERO (MATCH IMAGE DESIGN) */
 .hero{
-background:linear-gradient(to right,#4a6cf7,#6a8dff);
+position:relative;
+background:linear-gradient(120deg,#4a6cf7,#6a8dff);
 color:white;
 text-align:center;
-padding:80px;
+padding:100px 20px 140px;
+overflow:hidden;
+}
+
+.hero-content{
+position:relative;
+z-index:2;
+max-width:700px;
+margin:auto;
+}
+
+.hero h1{
+font-size:48px;
+margin-bottom:10px;
+}
+
+.hero p{
+font-size:18px;
+opacity:0.9;
+}
+
+.wave{
+position:absolute;
+bottom:0;
+left:0;
+width:100%;
 }
 
 /* FEATURES */
@@ -43,11 +80,12 @@ gap:20px;
 padding:40px;
 }
 .box{
-background:#f4f4f4;
+background:#fff;
 padding:20px;
 border-radius:10px;
 width:200px;
 text-align:center;
+box-shadow:0 5px 15px rgba(0,0,0,0.05);
 }
 
 /* BUILDER */
@@ -83,6 +121,7 @@ box-shadow:0 0 10px gray;
 
 <body>
 
+<!-- NAVBAR -->
 <div class="navbar">
 <h2>ResumeBuilder</h2>
 <div>
@@ -94,13 +133,25 @@ box-shadow:0 0 10px gray;
 </div>
 </div>
 
+<!-- HOME -->
 <div id="home">
+
 <div class="hero">
+<div class="hero-content">
 <h1>Create a Professional Resume</h1>
-<p>Build your resume quickly</p>
+<p>Build your resume quickly with our easy resume builder</p>
 
 <button class="btn" onclick="startBuilder()">Create My Resume</button>
-<button class="btn" onclick="uploadResume()">Upload Resume</button>
+<button class="btn secondary" onclick="uploadResume()">Upload Resume</button>
+</div>
+
+<!-- WAVE -->
+<svg class="wave" viewBox="0 0 1440 320">
+<path fill="#ffffff" fill-opacity="1"
+d="M0,224L80,202.7C160,181,320,139,480,138.7C640,139,800,181,960,208C1120,235,1280,245,1360,250.7L1440,256L1440,320L1360,320C1280,320,1120,320,960,320C800,320,640,320,480,320C320,320,160,320,80,320L0,320Z">
+</path>
+</svg>
+
 </div>
 
 <div class="features">
@@ -110,6 +161,7 @@ box-shadow:0 0 10px gray;
 </div>
 </div>
 
+<!-- BUILDER -->
 <div id="builder">
 <div class="container">
 
@@ -127,6 +179,7 @@ box-shadow:0 0 10px gray;
 </div>
 </div>
 
+<!-- LOGIN -->
 <div id="loginBox">
 <h3>Login</h3>
 <input id="user" placeholder="Username"><br><br>
@@ -136,6 +189,7 @@ box-shadow:0 0 10px gray;
 
 <script>
 
+/* NAV */
 function startBuilder(){
 home.style.display="none";
 builder.style.display="block";
@@ -147,7 +201,7 @@ home.style.display="block";
 builder.style.display="none";
 }
 
-/* FIXED RESUME FORM */
+/* FORM */
 function showResume(){
 formArea.innerHTML=`
 <h2>Enter Details</h2>
@@ -158,9 +212,9 @@ formArea.innerHTML=`
 <input id="location" placeholder="Location">
 
 <textarea id="summary" placeholder="Professional Summary"></textarea>
-<textarea id="skills" placeholder="Core Competencies"></textarea>
+<textarea id="skills" placeholder="Skills"></textarea>
 <textarea id="education" placeholder="Education"></textarea>
-<textarea id="experience" placeholder="Work Experience"></textarea>
+<textarea id="experience" placeholder="Experience"></textarea>
 <textarea id="projects" placeholder="Projects"></textarea>
 <textarea id="achievements" placeholder="Achievements"></textarea>
 
@@ -170,7 +224,7 @@ formArea.innerHTML=`
 attachResumeListener();
 }
 
-/* COVER LETTER FIX */
+/* COVER LETTER */
 function showCover(){
 startBuilder();
 
@@ -181,39 +235,33 @@ formArea.innerHTML=`
 <input id="company" placeholder="Company Name">
 <input id="role" placeholder="Job Role">
 
-<textarea id="letter" placeholder="Write your cover letter"></textarea>
+<textarea id="letter" placeholder="Write cover letter"></textarea>
 
 <button class="btn" onclick="downloadPDF()">Download</button>
 `;
 
 document.addEventListener("input",()=>{
-let cn=document.getElementById("cname")?.value||"";
-let comp=document.getElementById("company")?.value||"";
-let role=document.getElementById("role")?.value||"";
-let letter=document.getElementById("letter")?.value||"";
-
-document.getElementById("contentArea").innerHTML=`
-<h2>${cn}</h2>
-<p>To: ${comp}</p>
-<p>Subject: ${role}</p>
-<p>${letter}</p>
+contentArea.innerHTML=`
+<h2>${cname.value}</h2>
+<p>To: ${company.value}</p>
+<p>Role: ${role.value}</p>
+<p>${letter.value}</p>
 `;
 });
 }
 
-/* LOGIN FIX */
+/* LOGIN */
 function showLogin(){loginBox.style.display="block";}
 function login(){
 localStorage.setItem("user",user.value);
 localStorage.setItem("pass",pass.value);
-alert("Login Saved");
+alert("Saved");
 loginBox.style.display="none";
 }
 
 /* SAVE */
 function saveData(){
-
-let data={
+localStorage.setItem("resumeData",JSON.stringify({
 name:name.value,
 email:email.value,
 phone:phone.value,
@@ -224,61 +272,42 @@ education:education.value,
 experience:experience.value,
 projects:projects.value,
 achievements:achievements.value
-};
+}));
 
-localStorage.setItem("resumeData",JSON.stringify(data));
-
-alert("Saved! Downloading...");
 downloadPDF();
 }
 
-/* FIXED PREVIEW (NO MULTIPLE LISTENERS ISSUE) */
+/* LIVE PREVIEW */
 function attachResumeListener(){
-
-document.oninput = function(){
-
-let n=name?.value||"";
-let e=email?.value||"";
-let p=phone?.value||"";
-let l=location?.value||"";
-let s=summary?.value||"";
-let sk=skills?.value||"";
-let ed=education?.value||"";
-let ex=experience?.value||"";
-let pr=projects?.value||"";
-let ac=achievements?.value||"";
+document.oninput=function(){
 
 let html="";
 
-if(n) html+=`<h2 style="text-align:center">${n}</h2>`;
-if(e||p||l) html+=`<p style="text-align:center">${l} ${p?"| "+p:""} ${e?"| "+e:""}</p>`;
+if(name.value) html+=`<h2 style="text-align:center">${name.value}</h2>`;
+if(email.value||phone.value||location.value)
+html+=`<p style="text-align:center">${location.value} | ${phone.value} | ${email.value}</p>`;
 
-if(s) html+=`<hr><h3>Professional Summary</h3><p>${s}</p>`;
-if(ed) html+=`<hr><h3>Education</h3><p>${ed}</p>`;
-if(sk) html+=`<hr><h3>Core Competencies</h3><p>${sk}</p>`;
-if(ex) html+=`<hr><h3>Work Experience</h3><p>${ex}</p>`;
-if(pr) html+=`<hr><h3>Projects</h3><p>${pr}</p>`;
-if(ac) html+=`<hr><h3>Achievements</h3><p>${ac}</p>`;
+if(summary.value) html+=`<hr><h3>Summary</h3><p>${summary.value}</p>`;
+if(skills.value) html+=`<hr><h3>Skills</h3><p>${skills.value}</p>`;
+if(education.value) html+=`<hr><h3>Education</h3><p>${education.value}</p>`;
+if(experience.value) html+=`<hr><h3>Experience</h3><p>${experience.value}</p>`;
+if(projects.value) html+=`<hr><h3>Projects</h3><p>${projects.value}</p>`;
+if(achievements.value) html+=`<hr><h3>Achievements</h3><p>${achievements.value}</p>`;
 
-contentArea.innerHTML = html || "Start entering details...";
-};
+contentArea.innerHTML=html || "Start entering details...";
+}
 }
 
-/* FIXED PDF (NO CODE BREAK + PROPER LINE BREAKS) */
+/* PDF */
 function downloadPDF(){
-
 const { jsPDF } = window.jspdf;
 let doc = new jsPDF();
 
-let text = document.getElementById("contentArea").innerText;
+let text = contentArea.innerText;
+let lines = doc.splitTextToSize(text,180);
 
-let lines = doc.splitTextToSize(text, 180);
-
-doc.text(lines, 10, 10);
-
-doc.save("My_Document.pdf");
-
-localStorage.setItem("lastDownload", text);
+doc.text(lines,10,10);
+doc.save("Resume.pdf");
 }
 
 /* UPLOAD */
