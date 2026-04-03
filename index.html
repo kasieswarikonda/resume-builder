@@ -3,132 +3,119 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Resume Builder Full Project</title>
+<title>Advanced Resume Builder</title>
 <style>
-body { margin:0; font-family: Arial; background:#f4f4f4; }
-
-/* Navbar */
-.navbar { display:flex; justify-content:space-between; padding:15px 40px; background:#fff; box-shadow:0 2px 5px rgba(0,0,0,0.1);} 
-.navbar a { text-decoration:none; margin:0 10px; color:#333; }
-.btn { padding:8px 15px; background:#4a6cf7; color:#fff; border:none; border-radius:5px; cursor:pointer; }
-
-/* Hero */
-.hero { text-align:center; padding:50px; color:white; background:linear-gradient(to right,#4a6cf7,#6a8dff);} 
-
-/* Layout */
-.container { display:flex; padding:20px; }
-.form { width:40%; background:white; padding:20px; border-radius:10px; }
-.form input,.form textarea { width:100%; margin:10px 0; padding:10px; }
-.resume { width:60%; margin-left:20px; background:white; padding:20px; border-radius:10px; }
-
-/* Footer */
-.footer { text-align:center; padding:20px; background:#2c3e50; color:white; }
-
-/* Login Modal */
-.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5);} 
-.modal-content { background:white; padding:20px; margin:10% auto; width:300px; border-radius:10px; }
-
-#welcomeUser { text-align:center; color:green; font-weight:bold; }
+body{margin:0;font-family:Arial;background:#f4f4f4}
+.navbar{display:flex;justify-content:space-between;padding:15px 40px;background:#fff}
+.navbar a{margin:0 10px;text-decoration:none;color:#333;cursor:pointer}
+.btn{padding:8px 15px;background:#4a6cf7;color:#fff;border:none;border-radius:5px;cursor:pointer}
+.hero{background:linear-gradient(to right,#4a6cf7,#6a8dff);color:#fff;text-align:center;padding:50px}
+.templates{padding:30px;text-align:center}
+.cards{display:flex;justify-content:center;gap:20px}
+.card{width:200px;height:120px;background:#ddd;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.container{display:none;padding:20px}
+.form{width:40%;background:#fff;padding:20px}
+.resume{width:60%;background:#fff;margin-left:20px;padding:20px}
+.modal{display:none;position:fixed;width:100%;height:100%;background:rgba(0,0,0,0.5)}
+.modal-content{background:#fff;padding:20px;margin:10% auto;width:300px}
 </style>
 </head>
 <body>
 
-<!-- Navbar -->
 <div class="navbar">
-    <h3>ResumeBuilder</h3>
-    <div>
-        <a href="#">Home</a>
-        <button class="btn" onclick="openLogin()">Login</button>
-    </div>
+<h3>ResumeBuilder</h3>
+<div>
+<a onclick="showSection('home')">Home</a>
+<a onclick="showSection('builder')">Resume</a>
+<a onclick="alert('Cover Letter Coming Soon')">Cover Letter</a>
+<a onclick="openLogin()">Sign In</a>
+<button class="btn" onclick="showSection('builder')">Get Started</button>
+</div>
 </div>
 
-<p id="welcomeUser"></p>
-
-<!-- Hero -->
+<div id="home">
 <div class="hero">
-    <h1>Create a Professional Resume</h1>
-    <p>Enter your details and generate instantly</p>
+<h1>Create My Resume</h1>
+<button class="btn" onclick="showSection('builder')">Create My Resume</button>
+<button class="btn" onclick="uploadResume()">Upload Resume</button>
 </div>
 
-<!-- Main Section -->
-<div class="container">
-
-    <!-- Form -->
-    <div class="form">
-        <h2>Enter Details</h2>
-        <input type="text" id="name" placeholder="Full Name">
-        <input type="email" id="email" placeholder="Email">
-        <input type="text" id="phone" placeholder="Phone">
-        <textarea id="skills" placeholder="Skills"></textarea>
-        <textarea id="education" placeholder="Education"></textarea>
-        <textarea id="experience" placeholder="Experience"></textarea>
-        <button onclick="generateResume()">Generate Resume</button>
-    </div>
-
-    <!-- Resume Output -->
-    <div class="resume" id="resumeOutput">
-        <h2>Your Resume Will Appear Here</h2>
-    </div>
-
+<div class="templates">
+<h2>Choose Template</h2>
+<div class="cards">
+<div class="card" onclick="selectTemplate('template1')">Template 1</div>
+<div class="card" onclick="selectTemplate('template2')">Template 2</div>
+<div class="card" onclick="selectTemplate('template3')">Template 3</div>
+</div>
+</div>
 </div>
 
-<!-- Footer -->
-<div class="footer">© 2026 Resume Builder</div>
+<div id="builder" class="container">
+<div class="form">
+<h2>Enter Details</h2>
+<input id="name" placeholder="Name">
+<input id="email" placeholder="Email">
+<textarea id="skills" placeholder="Skills"></textarea>
+<textarea id="education" placeholder="Education"></textarea>
+<button onclick="generateResume()">Generate</button>
+</div>
+<div class="resume" id="output">
+<h2>Resume Preview</h2>
+</div>
+</div>
 
-<!-- Login Modal -->
 <div id="loginModal" class="modal">
-    <div class="modal-content">
-        <h3>Login</h3>
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
-        <button class="btn" onclick="login()">Submit</button>
-    </div>
+<div class="modal-content">
+<h3>Login</h3>
+<input id="user" placeholder="Username">
+<input id="pass" placeholder="Password">
+<button onclick="login()">Login</button>
+</div>
 </div>
 
 <script>
-function openLogin(){ document.getElementById("loginModal").style.display="block"; }
-
-function login(){
-    let user=document.getElementById("username").value;
-    let pass=document.getElementById("password").value;
-    if(user && pass){
-        localStorage.setItem("user",user);
-        document.getElementById("welcomeUser").innerText="Welcome, "+user+" 🎉";
-        document.getElementById("loginModal").style.display="none";
-    } else { alert("Enter all details"); }
+function showSection(section){
+ document.getElementById('home').style.display='none';
+ document.getElementById('builder').style.display='none';
+ document.getElementById(section).style.display='block';
 }
 
-window.onload=function(){
-    let user=localStorage.getItem("user");
-    if(user){ document.getElementById("welcomeUser").innerText="Welcome back, "+user+" 👋"; }
+function openLogin(){document.getElementById('loginModal').style.display='block'}
+
+function login(){
+ let u=document.getElementById('user').value;
+ let p=document.getElementById('pass').value;
+ if(u&&p){alert('Welcome '+u);document.getElementById('loginModal').style.display='none'}
+ else{alert('Enter details')}
+}
+
+function selectTemplate(temp){
+ alert(temp+' selected');
+ showSection('builder');
+}
+
+function uploadResume(){
+ alert('Upload feature (demo)');
 }
 
 function generateResume(){
-    let name=document.getElementById("name").value;
-    let email=document.getElementById("email").value;
-    let phone=document.getElementById("phone").value;
-    let skills=document.getElementById("skills").value;
-    let education=document.getElementById("education").value;
-    let experience=document.getElementById("experience").value;
+ let name=document.getElementById('name').value;
+ let email=document.getElementById('email').value;
+ let skills=document.getElementById('skills').value;
+ let edu=document.getElementById('education').value;
 
-    if(!name || !email){ alert("Fill required fields"); return; }
-
-    document.getElementById("resumeOutput").innerHTML=`
-        <h1>${name}</h1>
-        <p><b>Email:</b> ${email}</p>
-        <p><b>Phone:</b> ${phone}</p>
-        <h3>Skills</h3><p>${skills}</p>
-        <h3>Education</h3><p>${education}</p>
-        <h3>Experience</h3><p>${experience}</p>
-    `;
+ document.getElementById('output').innerHTML=`
+ <h1>${name}</h1>
+ <p>${email}</p>
+ <h3>Skills</h3><p>${skills}</p>
+ <h3>Education</h3><p>${edu}</p>`;
 }
 
 window.onclick=function(e){
-    let modal=document.getElementById("loginModal");
-    if(e.target==modal){ modal.style.display="none"; }
+ if(e.target==document.getElementById('loginModal')){
+ document.getElementById('loginModal').style.display='none'}
 }
 </script>
 
 </body>
 </html>
-    
