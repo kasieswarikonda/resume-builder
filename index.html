@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
 <title>Resume Builder</title>
+
+<!-- PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
 body{margin:0;font-family:Arial}
 
@@ -14,22 +17,23 @@ padding:15px 40px;
 background:#fff;
 box-shadow:0 2px 5px rgba(0,0,0,0.1);
 }
-.navbar a{margin:0 10px;cursor:pointer;text-decoration:none;color:#333}
+.navbar h2{color:#4a6cf7}
+.navbar a{margin:0 10px;cursor:pointer}
 .btn{
 background:#4a6cf7;
 color:#fff;
 padding:8px 15px;
 border:none;
-border-radius:5px;
 cursor:pointer;
+border-radius:5px;
 }
 
 /* HERO */
 .hero{
 background:linear-gradient(to right,#4a6cf7,#6a8dff);
-color:#fff;
+color:white;
 text-align:center;
-padding:70px;
+padding:80px;
 }
 
 /* FEATURES */
@@ -39,7 +43,7 @@ justify-content:center;
 gap:20px;
 padding:40px;
 }
-.feature-box{
+.box{
 background:#f4f4f4;
 padding:20px;
 border-radius:10px;
@@ -48,28 +52,32 @@ text-align:center;
 }
 
 /* BUILDER */
-#builder{
-display:none;
-padding:40px;
-}
-.container{
-display:flex;
-gap:20px;
-}
-input,textarea{
-width:100%;
-padding:10px;
-margin:5px 0;
+#builder{display:none;padding:20px;}
+.container{display:flex;gap:20px;}
+.form{width:40%;}
+.preview{
+width:60%;
+background:#fff;
+padding:20px;
+border:1px solid #ccc;
 }
 
-/* PREVIEW */
-#preview{
-width:60%;
-background:#f4f4f4;
-padding:20px;
+/* INPUT */
+input,textarea{
+width:100%;
+margin:8px 0;
+padding:10px;
 }
-.form{
-width:40%;
+
+/* LOGIN */
+#loginBox{
+display:none;
+position:fixed;
+top:30%;
+left:40%;
+background:white;
+padding:20px;
+box-shadow:0 0 10px gray;
 }
 </style>
 </head>
@@ -78,30 +86,30 @@ width:40%;
 
 <!-- NAVBAR -->
 <div class="navbar">
-<h3>ResumeBuilder</h3>
+<h2>ResumeBuilder</h2>
 <div>
 <a onclick="goHome()">Resume</a>
+<a onclick="showResume()">Resume Builder</a>
 <a onclick="showCover()">Cover Letter</a>
-<a onclick="login()">Sign In</a>
+<a onclick="showLogin()">Sign In</a>
 <button class="btn" onclick="startBuilder()">Get Started</button>
 </div>
 </div>
 
-<!-- HERO -->
+<!-- HOME -->
 <div id="home">
 <div class="hero">
 <h1>Create a Professional Resume</h1>
-<p>Build your resume quickly with our easy builder</p>
+<p>Build your resume quickly</p>
 
 <button class="btn" onclick="startBuilder()">Create My Resume</button>
 <button class="btn" onclick="uploadResume()">Upload Resume</button>
 </div>
 
-<!-- FEATURES -->
 <div class="features">
-<div class="feature-box">AI Writer</div>
-<div class="feature-box">Easy to Match</div>
-<div class="feature-box">Helpful Resources</div>
+<div class="box">AI Writer</div>
+<div class="box">Easy to Match</div>
+<div class="box">Helpful Resources</div>
 </div>
 </div>
 
@@ -110,63 +118,186 @@ width:40%;
 <div class="container">
 
 <!-- FORM -->
-<div class="form">
-<h2>Enter Details</h2>
-
-<input id="name" placeholder="Full Name">
-<input id="email" placeholder="Email">
-<input id="phone" placeholder="Phone">
-
-<textarea id="skills" placeholder="Skills"></textarea>
-<textarea id="edu" placeholder="Education"></textarea>
-<textarea id="exp" placeholder="Experience"></textarea>
-
-</div>
+<div class="form" id="formArea"></div>
 
 <!-- PREVIEW -->
-<div id="preview">
-<h2>Live Resume Preview</h2>
+<div class="preview">
+
+<div style="display:flex;justify-content:space-between;">
+<h3>Preview</h3>
+<button class="btn" onclick="downloadPDF()">Download PDF</button>
+</div>
+
+<hr>
+<div id="contentArea">Start entering details...</div>
+
 </div>
 
 </div>
+</div>
+
+<!-- LOGIN -->
+<div id="loginBox">
+<h3>Login</h3>
+<input id="user" placeholder="Username"><br><br>
+<input id="pass" placeholder="Password"><br><br>
+<button onclick="login()">Login</button>
 </div>
 
 <script>
 
 /* NAVIGATION */
-function goHome(){
-location.reload();
-}
-
 function startBuilder(){
-document.getElementById("home").style.display="none";
-document.getElementById("builder").style.display="block";
+home.style.display="none";
+builder.style.display="block";
+showResume();
+}
+function goHome(){
+home.style.display="block";
+builder.style.display="none";
 }
 
-/* LIVE UPDATE */
-document.addEventListener("input", updateResume);
+/* RESUME FORM */
+function showResume(){
+formArea.innerHTML=`
+<h2>Enter Details</h2>
 
-function updateResume(){
-let name=document.getElementById("name").value;
-let email=document.getElementById("email").value;
-let phone=document.getElementById("phone").value;
-let skills=document.getElementById("skills").value;
-let edu=document.getElementById("edu").value;
-let exp=document.getElementById("exp").value;
+<input id="name" placeholder="Full Name">
+<input id="email" placeholder="Email">
+<input id="phone" placeholder="Phone">
+<input id="location" placeholder="Location">
 
-document.getElementById("preview").innerHTML=`
-<h1>${name}</h1>
-<p>${email} | ${phone}</p>
+<textarea id="summary" placeholder="Professional Summary"></textarea>
+<textarea id="skills" placeholder="Core Competencies"></textarea>
+<textarea id="education" placeholder="Education"></textarea>
+<textarea id="experience" placeholder="Work Experience"></textarea>
+<textarea id="projects" placeholder="Projects"></textarea>
+<textarea id="achievements" placeholder="Achievements"></textarea>
 
-<h3>Skills</h3>
-<p>${skills}</p>
-
-<h3>Education</h3>
-<p>${edu}</p>
-
-<h3>Experience</h3>
-<p>${exp}</p>
+<button class="btn" onclick="saveData()">Save & Download</button>
 `;
+
+attachResumeListener();
+}
+
+/* COVER LETTER */
+function showCover(){
+startBuilder();
+
+formArea.innerHTML=`
+<h2>Cover Letter</h2>
+
+<input id="cname" placeholder="Your Name">
+<input id="company" placeholder="Company Name">
+<input id="role" placeholder="Job Role">
+
+<textarea id="letter" placeholder="Write your cover letter"></textarea>
+
+<button class="btn" onclick="downloadPDF()">Download</button>
+`;
+
+document.addEventListener("input",()=>{
+let cn=document.getElementById("cname")?.value||"";
+let comp=document.getElementById("company")?.value||"";
+let role=document.getElementById("role")?.value||"";
+let letter=document.getElementById("letter")?.value||"";
+
+/* STORE */
+localStorage.setItem("coverLetterData",JSON.stringify({cn,comp,role,letter}));
+
+document.getElementById("contentArea").innerHTML=`
+<h2>${cn}</h2>
+<p>To: ${comp}</p>
+<p>Subject: ${role}</p>
+<p>${letter}</p>
+`;
+});
+}
+
+/* LOGIN */
+function showLogin(){loginBox.style.display="block";}
+function login(){
+localStorage.setItem("user",user.value);
+localStorage.setItem("pass",pass.value);
+alert("Login Saved");
+loginBox.style.display="none";
+}
+
+/* SAVE + AUTO DOWNLOAD */
+function saveData(){
+
+let data={
+name:name.value,
+email:email.value,
+phone:phone.value,
+location:location.value,
+summary:summary.value,
+skills:skills.value,
+education:education.value,
+experience:experience.value,
+projects:projects.value,
+achievements:achievements.value
+};
+
+localStorage.setItem("resumeData",JSON.stringify(data));
+
+alert("Saved! Downloading...");
+
+downloadPDF();
+}
+
+/* RESUME PREVIEW FIX */
+function attachResumeListener(){
+
+document.addEventListener("input",()=>{
+
+let n=name?.value||"";
+let e=email?.value||"";
+let p=phone?.value||"";
+let l=location?.value||"";
+let s=summary?.value||"";
+let sk=skills?.value||"";
+let ed=education?.value||"";
+let ex=experience?.value||"";
+let pr=projects?.value||"";
+let ac=achievements?.value||"";
+
+let html="";
+
+if(n) html+=`<h2 style="text-align:center">${n}</h2>`;
+if(e||p||l) html+=`<p style="text-align:center">${l} ${p?"| "+p:""} ${e?"| "+e:""}</p>`;
+
+if(s) html+=`<hr><h3>Professional Summary</h3><p>${s}</p>`;
+if(ed) html+=`<hr><h3>Education</h3><p>${ed}</p>`;
+if(sk) html+=`<hr><h3>Core Competencies</h3><p>${sk}</p>`;
+if(ex) html+=`<hr><h3>Work Experience</h3><p>${ex}</p>`;
+if(pr) html+=`<hr><h3>Technical Projects</h3><p>${pr}</p>`;
+if(ac) html+=`<hr><h3>Honours & Achievements</h3><p>${ac}</p>`;
+
+document.getElementById("contentArea").innerHTML=html||"<h3>Start entering details...</h3>";
+
+});
+}
+
+/* PDF DOWNLOAD (OPEN + DOWNLOAD) */
+function downloadPDF(){
+
+const { jsPDF } = window.jspdf;
+let doc=new jsPDF();
+
+let text=document.getElementById("contentArea").innerText;
+let lines=doc.splitTextToSize(text,180);
+
+doc.text(lines,10,10);
+
+// OPEN
+let url=doc.output("bloburl");
+window.open(url);
+
+// DOWNLOAD
+doc.save("My_Document.pdf");
+
+localStorage.setItem("lastDownload",text);
 }
 
 /* UPLOAD */
@@ -174,21 +305,6 @@ function uploadResume(){
 let input=document.createElement("input");
 input.type="file";
 input.click();
-}
-
-/* COVER LETTER */
-function showCover(){
-startBuilder();
-document.getElementById("preview").innerHTML=`
-<h2>Cover Letter</h2>
-<p>Dear Hiring Manager,</p>
-<p>I am interested in this position...</p>
-`;
-}
-
-/* LOGIN */
-function login(){
-alert("Login requires backend (not included)");
 }
 
 </script>
