@@ -5,17 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Advanced Resume Builder</title>
 <style>
-body{margin:0;font-family:Arial;background:#f4f4f4}
-.navbar{display:flex;justify-content:space-between;padding:15px 40px;background:#fff}
-.navbar a{margin:0 10px;text-decoration:none;color:#333;cursor:pointer}
-.btn{padding:8px 15px;background:#4a6cf7;color:#fff;border:none;border-radius:5px;cursor:pointer}
-.hero{background:linear-gradient(to right,#4a6cf7,#6a8dff);color:#fff;text-align:center;padding:50px}
-.templates{padding:30px;text-align:center}
+body{margin:0;font-family:Arial;background:#fff}
+.navbar{display:flex;justify-content:space-between;padding:15px 40px;border-bottom:1px solid #eee}
+.navbar h2{color:#4a6cf7}
+.navbar div a{margin:0 15px;text-decoration:none;color:#333;cursor:pointer}
+.btn{background:#4a6cf7;color:#fff;padding:8px 15px;border:none;border-radius:5px;cursor:pointer}
+.hero{background:linear-gradient(to right,#4a6cf7,#6a8dff);color:#fff;text-align:center;padding:70px}
+.templates{text-align:center;padding:40px}
 .cards{display:flex;justify-content:center;gap:20px}
-.card{width:200px;height:120px;background:#ddd;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.container{display:none;padding:20px}
-.form{width:40%;background:#fff;padding:20px}
-.resume{width:60%;background:#fff;margin-left:20px;padding:20px}
+.card{width:220px;height:130px;background:#eee;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.builder{display:none;padding:20px;gap:20px}
+.form{width:40%}
+.form input,.form textarea{width:100%;margin:8px 0;padding:10px}
+.preview{width:60%;background:#f9f9f9;padding:20px;border-radius:10px}
 .modal{display:none;position:fixed;width:100%;height:100%;background:rgba(0,0,0,0.5)}
 .modal-content{background:#fff;padding:20px;margin:10% auto;width:300px}
 </style>
@@ -23,48 +25,69 @@ body{margin:0;font-family:Arial;background:#f4f4f4}
 <body>
 
 <div class="navbar">
-<h3>ResumeBuilder</h3>
+<h2>MyCV</h2>
 <div>
-<a onclick="showSection('home')">Home</a>
-<a onclick="showSection('builder')">Resume</a>
-<a onclick="alert('Cover Letter Coming Soon')">Cover Letter</a>
+<a onclick="goHome()">Resume</a>
+<a onclick="coverLetter()">Cover Letter</a>
 <a onclick="openLogin()">Sign In</a>
-<button class="btn" onclick="showSection('builder')">Get Started</button>
+<button class="btn" onclick="startBuilder()">Get Started</button>
 </div>
 </div>
 
 <div id="home">
 <div class="hero">
-<h1>Create My Resume</h1>
-<button class="btn" onclick="showSection('builder')">Create My Resume</button>
+<h1>Create Professional Resume</h1>
+<button class="btn" onclick="startBuilder()">Create My Resume</button>
 <button class="btn" onclick="uploadResume()">Upload Resume</button>
 </div>
 
 <div class="templates">
-<h2>Choose Template</h2>
+<h2>Select Template</h2>
 <div class="cards">
-<div class="card" onclick="selectTemplate('template1')">Template 1</div>
-<div class="card" onclick="selectTemplate('template2')">Template 2</div>
-<div class="card" onclick="selectTemplate('template3')">Template 3</div>
+<div class="card" onclick="selectTemplate('t1')">Template 1</div>
+<div class="card" onclick="selectTemplate('t2')">Template 2</div>
+<div class="card" onclick="selectTemplate('t3')">Template 3</div>
 </div>
 </div>
 </div>
 
-<div id="builder" class="container">
+<div id="builder" class="builder">
+
 <div class="form">
-<h2>Enter Details</h2>
-<input id="name" placeholder="Name">
+<h3>Personal Info</h3>
+<input id="name" placeholder="Full Name">
 <input id="email" placeholder="Email">
-<textarea id="skills" placeholder="Skills"></textarea>
-<textarea id="education" placeholder="Education"></textarea>
-<button onclick="generateResume()">Generate</button>
-</div>
-<div class="resume" id="output">
-<h2>Resume Preview</h2>
-</div>
+<input id="phone" placeholder="Phone">
+<input id="address" placeholder="Address">
+
+<h3>Professional Summary</h3>
+<textarea id="summary"></textarea>
+
+<h3>Skills</h3>
+<textarea id="skills"></textarea>
+
+<h3>Education</h3>
+<textarea id="edu"></textarea>
+
+<h3>Experience</h3>
+<textarea id="exp"></textarea>
+
+<h3>Projects</h3>
+<textarea id="projects"></textarea>
+
+<h3>Certifications</h3>
+<textarea id="cert"></textarea>
+
+<button class="btn" onclick="generate()">Generate Resume</button>
 </div>
 
-<div id="loginModal" class="modal">
+<div class="preview" id="preview">
+<h2>Live Preview</h2>
+</div>
+
+</div>
+
+<div id="login" class="modal">
 <div class="modal-content">
 <h3>Login</h3>
 <input id="user" placeholder="Username">
@@ -74,47 +97,46 @@ body{margin:0;font-family:Arial;background:#f4f4f4}
 </div>
 
 <script>
-function showSection(section){
- document.getElementById('home').style.display='none';
- document.getElementById('builder').style.display='none';
- document.getElementById(section).style.display='block';
+function goHome(){home.style.display='block';builder.style.display='none'}
+function startBuilder(){home.style.display='none';builder.style.display='flex'}
+function selectTemplate(t){localStorage.setItem('template',t);startBuilder()}
+
+function generate(){
+let t=localStorage.getItem('template')||'t1';
+let name=nameInput.value;
+let email=emailInput.value;
+let phone=phoneInput.value;
+let address=addressInput.value;
+let summary=summaryInput.value;
+let skills=skillsInput.value;
+let edu=eduInput.value;
+let exp=expInput.value;
+let projects=projectsInput.value;
+let cert=certInput.value;
+
+let html=`
+<h1>${name}</h1>
+<p>${email} | ${phone}</p>
+<p>${address}</p>
+<h3>Summary</h3><p>${summary}</p>
+<h3>Skills</h3><p>${skills}</p>
+<h3>Education</h3><p>${edu}</p>
+<h3>Experience</h3><p>${exp}</p>
+<h3>Projects</h3><p>${projects}</p>
+<h3>Certifications</h3><p>${cert}</p>`;
+
+if(t==='t2'){html='<div style="color:blue">'+html+'</div>'}
+if(t==='t3'){html='<div style="background:#eee;padding:10px">'+html+'</div>'}
+
+preview.innerHTML=html;
 }
 
-function openLogin(){document.getElementById('loginModal').style.display='block'}
+function uploadResume(){let i=document.createElement('input');i.type='file';i.click()}
+function coverLetter(){startBuilder();preview.innerHTML='<h2>Cover Letter</h2><p>Write your cover letter...</p>'}
+function openLogin(){login.style.display='block'}
+function login(){if(user.value&&pass.value){alert('Welcome '+user.value);login.style.display='none'}}
 
-function login(){
- let u=document.getElementById('user').value;
- let p=document.getElementById('pass').value;
- if(u&&p){alert('Welcome '+u);document.getElementById('loginModal').style.display='none'}
- else{alert('Enter details')}
-}
-
-function selectTemplate(temp){
- alert(temp+' selected');
- showSection('builder');
-}
-
-function uploadResume(){
- alert('Upload feature (demo)');
-}
-
-function generateResume(){
- let name=document.getElementById('name').value;
- let email=document.getElementById('email').value;
- let skills=document.getElementById('skills').value;
- let edu=document.getElementById('education').value;
-
- document.getElementById('output').innerHTML=`
- <h1>${name}</h1>
- <p>${email}</p>
- <h3>Skills</h3><p>${skills}</p>
- <h3>Education</h3><p>${edu}</p>`;
-}
-
-window.onclick=function(e){
- if(e.target==document.getElementById('loginModal')){
- document.getElementById('loginModal').style.display='none'}
-}
+window.onclick=function(e){if(e.target==login){login.style.display='none'}}
 </script>
 
 </body>
