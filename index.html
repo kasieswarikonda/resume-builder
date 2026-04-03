@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Advanced Resume Builder</title>
+<title>Final Resume Builder</title>
 <style>
 body{margin:0;font-family:Arial;background:#fff}
 .navbar{display:flex;justify-content:space-between;padding:15px 40px;border-bottom:1px solid #eee}
@@ -44,9 +44,25 @@ body{margin:0;font-family:Arial;background:#fff}
 <div class="templates">
 <h2>Select Template</h2>
 <div class="cards">
-<div class="card" onclick="selectTemplate('t1')">Template 1</div>
-<div class="card" onclick="selectTemplate('t2')">Template 2</div>
-<div class="card" onclick="selectTemplate('t3')">Template 3</div>
+
+<div class="card" onclick="selectTemplate('t1')">
+<div style="width:90%;height:80%;background:white;border-radius:5px;padding:5px;font-size:10px">
+<b>Name</b><br>Email<br><hr>Skills<br>Education
+</div>
+</div>
+
+<div class="card" onclick="selectTemplate('t2')">
+<div style="width:90%;height:80%;background:#e6f0ff;border-radius:5px;padding:5px;font-size:10px">
+<b style="color:blue">Name</b><br>Email<br><hr>Skills<br>Education
+</div>
+</div>
+
+<div class="card" onclick="selectTemplate('t3')">
+<div style="width:90%;height:80%;background:#f2f2f2;border-radius:5px;padding:5px;font-size:10px">
+<b>Name</b><br><hr>Skills<br>Education
+</div>
+</div>
+
 </div>
 </div>
 </div>
@@ -60,7 +76,7 @@ body{margin:0;font-family:Arial;background:#fff}
 <input id="phone" placeholder="Phone">
 <input id="address" placeholder="Address">
 
-<h3>Professional Summary</h3>
+<h3>Summary</h3>
 <textarea id="summary"></textarea>
 
 <h3>Skills</h3>
@@ -102,17 +118,20 @@ function startBuilder(){home.style.display='none';builder.style.display='flex'}
 function selectTemplate(t){localStorage.setItem('template',t);startBuilder()}
 
 function generate(){
+let name=document.getElementById('name').value;
+let email=document.getElementById('email').value;
+let phone=document.getElementById('phone').value;
+let address=document.getElementById('address').value;
+let summary=document.getElementById('summary').value;
+let skills=document.getElementById('skills').value;
+let edu=document.getElementById('edu').value;
+let exp=document.getElementById('exp').value;
+let projects=document.getElementById('projects').value;
+let cert=document.getElementById('cert').value;
+
+if(!name || !email){alert('Fill Name & Email');return;}
+
 let t=localStorage.getItem('template')||'t1';
-let name=nameInput.value;
-let email=emailInput.value;
-let phone=phoneInput.value;
-let address=addressInput.value;
-let summary=summaryInput.value;
-let skills=skillsInput.value;
-let edu=eduInput.value;
-let exp=expInput.value;
-let projects=projectsInput.value;
-let cert=certInput.value;
 
 let html=`
 <h1>${name}</h1>
@@ -128,13 +147,13 @@ let html=`
 if(t==='t2'){html='<div style="color:blue">'+html+'</div>'}
 if(t==='t3'){html='<div style="background:#eee;padding:10px">'+html+'</div>'}
 
-preview.innerHTML=html;
+document.getElementById('preview').innerHTML=html;
 }
 
 function uploadResume(){let i=document.createElement('input');i.type='file';i.click()}
-function coverLetter(){startBuilder();preview.innerHTML='<h2>Cover Letter</h2><p>Write your cover letter...</p>'}
+function coverLetter(){startBuilder();preview.innerHTML='<h2>Cover Letter</h2><p>Write here...</p>'}
 function openLogin(){login.style.display='block'}
-function login(){if(user.value&&pass.value){alert('Welcome '+user.value);login.style.display='none'}}
+function login(){if(user.value&&pass.value){alert('Welcome '+user.value);login.style.display='none'}else{alert('Enter details')}}
 
 window.onclick=function(e){if(e.target==login){login.style.display='none'}}
 </script>
