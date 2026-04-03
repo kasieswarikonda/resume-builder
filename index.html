@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Resume Builder</title>
+<title>Resume Builder Pro</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -14,8 +14,8 @@ display:flex;justify-content:space-between;align-items:center;
 padding:15px 40px;background:#fff;
 box-shadow:0 2px 5px rgba(0,0,0,0.1);
 }
-.navbar div{display:flex;gap:25px;align-items:center;}
-.navbar a{cursor:pointer;text-decoration:none;color:black;}
+.navbar div{display:flex;gap:25px;}
+.navbar a{cursor:pointer;text-decoration:none;color:black;font-weight:500;}
 .navbar a:hover{color:#4a6cf7;}
 
 .btn{
@@ -43,7 +43,15 @@ background:#f4f4f4;padding:20px;border-radius:10px;width:200px;text-align:center
 .form{width:40%;}
 .preview{width:60%;background:#fff;padding:20px;border:1px solid #ccc;}
 
-input,textarea{width:100%;margin:8px 0;padding:10px;}
+input,textarea{
+width:100%;margin:8px 0;padding:10px;
+}
+
+/* LOGIN */
+#loginBox{
+display:none;position:fixed;top:30%;left:40%;
+background:white;padding:20px;box-shadow:0 0 10px gray;
+}
 </style>
 </head>
 
@@ -56,6 +64,7 @@ input,textarea{width:100%;margin:8px 0;padding:10px;}
 <a onclick="goHome()">Resume</a>
 <a onclick="showResume()">Resume Builder</a>
 <a onclick="showCover()">Cover Letter</a>
+<a onclick="showLogin()">Sign In</a>
 <button class="btn" onclick="startBuilder()">Get Started</button>
 </div>
 </div>
@@ -64,7 +73,9 @@ input,textarea{width:100%;margin:8px 0;padding:10px;}
 <div id="home">
 <div class="hero">
 <h1>Create a Professional Resume</h1>
+<p>Fast • Easy • Professional</p>
 <button class="btn" onclick="startBuilder()">Create My Resume</button>
+<button class="btn" onclick="uploadResume()">Upload Resume</button>
 </div>
 
 <div class="features">
@@ -92,22 +103,30 @@ input,textarea{width:100%;margin:8px 0;padding:10px;}
 </div>
 </div>
 
+<!-- LOGIN -->
+<div id="loginBox">
+<h3>Login</h3>
+<input id="user" placeholder="Username"><br><br>
+<input id="pass" placeholder="Password"><br><br>
+<button onclick="login()">Login</button>
+</div>
+
 <script>
 
 /* NAVIGATION */
 function startBuilder(){
-document.getElementById("home").style.display="none";
-document.getElementById("builder").style.display="block";
+home.style.display="none";
+builder.style.display="block";
 showResume();
 }
 function goHome(){
-document.getElementById("home").style.display="block";
-document.getElementById("builder").style.display="none";
+home.style.display="block";
+builder.style.display="none";
 }
 
 /* ================= RESUME ================= */
 function showResume(){
-document.getElementById("formArea").innerHTML=`
+formArea.innerHTML=`
 <h2>Resume</h2>
 
 <input id="name" placeholder="Full Name">
@@ -131,18 +150,12 @@ loadResume();
 /* SAVE RESUME */
 function saveResume(){
 let data={
-name:document.getElementById("name").value,
-email:document.getElementById("email").value,
-phone:document.getElementById("phone").value,
-location:document.getElementById("location").value,
-summary:document.getElementById("summary").value,
-skills:document.getElementById("skills").value,
-education:document.getElementById("education").value,
-experience:document.getElementById("experience").value,
-projects:document.getElementById("projects").value,
-achievements:document.getElementById("achievements").value
+name:name.value,email:email.value,phone:phone.value,
+location:location.value,summary:summary.value,
+skills:skills.value,education:education.value,
+experience:experience.value,projects:projects.value,
+achievements:achievements.value
 };
-
 localStorage.setItem("resumeData",JSON.stringify(data));
 alert("Resume Saved!");
 }
@@ -151,24 +164,18 @@ alert("Resume Saved!");
 function loadResume(){
 let data=JSON.parse(localStorage.getItem("resumeData"));
 if(!data) return;
-
-document.getElementById("name").value=data.name||"";
-document.getElementById("email").value=data.email||"";
-document.getElementById("phone").value=data.phone||"";
-document.getElementById("location").value=data.location||"";
-document.getElementById("summary").value=data.summary||"";
-document.getElementById("skills").value=data.skills||"";
-document.getElementById("education").value=data.education||"";
-document.getElementById("experience").value=data.experience||"";
-document.getElementById("projects").value=data.projects||"";
-document.getElementById("achievements").value=data.achievements||"";
+name.value=data.name||""; email.value=data.email||"";
+phone.value=data.phone||""; location.value=data.location||"";
+summary.value=data.summary||""; skills.value=data.skills||"";
+education.value=data.education||""; experience.value=data.experience||"";
+projects.value=data.projects||""; achievements.value=data.achievements||"";
 }
 
 /* ================= COVER LETTER ================= */
 function showCover(){
 startBuilder();
 
-document.getElementById("formArea").innerHTML=`
+formArea.innerHTML=`
 <h2>Cover Letter</h2>
 
 <input id="cname" placeholder="Your Name">
@@ -185,12 +192,9 @@ loadCover();
 /* SAVE COVER */
 function saveCover(){
 let data={
-name:document.getElementById("cname").value,
-company:document.getElementById("company").value,
-role:document.getElementById("role").value,
-letter:document.getElementById("letter").value
+name:cname.value,company:company.value,
+role:role.value,letter:letter.value
 };
-
 localStorage.setItem("coverLetterData",JSON.stringify(data));
 alert("Cover Letter Saved!");
 }
@@ -199,67 +203,59 @@ alert("Cover Letter Saved!");
 function loadCover(){
 let data=JSON.parse(localStorage.getItem("coverLetterData"));
 if(!data) return;
-
-document.getElementById("cname").value=data.name||"";
-document.getElementById("company").value=data.company||"";
-document.getElementById("role").value=data.role||"";
-document.getElementById("letter").value=data.letter||"";
+cname.value=data.name||""; company.value=data.company||"";
+role.value=data.role||""; letter.value=data.letter||"";
 }
 
 /* ================= PREVIEW ================= */
-document.addEventListener("input",updatePreview);
+document.addEventListener("input",function(){
 
-function updatePreview(){
-
-// RESUME
 if(document.getElementById("name")){
-let n=document.getElementById("name").value||"";
-let e=document.getElementById("email").value||"";
-let p=document.getElementById("phone").value||"";
-let l=document.getElementById("location").value||"";
-let s=document.getElementById("summary").value||"";
-let sk=document.getElementById("skills").value||"";
-let ed=document.getElementById("education").value||"";
-let ex=document.getElementById("experience").value||"";
-let pr=document.getElementById("projects").value||"";
-let ac=document.getElementById("achievements").value||"";
-
-let html="";
-if(n) html+=`<h2 style="text-align:center">${n}</h2>`;
-if(e||p||l) html+=`<p style="text-align:center">${l} ${p?"| "+p:""} ${e?"| "+e:""}</p>`;
-if(s) html+=`<hr><h3>Professional Summary</h3><p>${s}</p>`;
-if(ed) html+=`<hr><h3>Education</h3><p>${ed}</p>`;
-if(sk) html+=`<hr><h3>Core Competencies</h3><p>${sk}</p>`;
-if(ex) html+=`<hr><h3>Work Experience</h3><p>${ex}</p>`;
-if(pr) html+=`<hr><h3>Technical Projects</h3><p>${pr}</p>`;
-if(ac) html+=`<hr><h3>Honours & Achievements</h3><p>${ac}</p>`;
-
-document.getElementById("contentArea").innerHTML=html||"Start entering details...";
+contentArea.innerHTML=`
+<h2>${name.value}</h2>
+<p>${location.value} | ${phone.value} | ${email.value}</p>
+<hr>
+<p>${summary.value}</p>
+`;
 }
 
-// COVER
 if(document.getElementById("cname")){
-document.getElementById("contentArea").innerHTML=`
+contentArea.innerHTML=`
 <h2>${cname.value}</h2>
 <p>To: ${company.value}</p>
 <p><b>Subject:</b> ${role.value}</p>
+<hr>
 <p>${letter.value}</p>
 `;
 }
 
-}
+});
 
 /* ================= PDF ================= */
 function downloadPDF(){
 const { jsPDF } = window.jspdf;
 let doc=new jsPDF();
-
-let text=document.getElementById("contentArea").innerText;
+let text=contentArea.innerText;
 let lines=doc.splitTextToSize(text,180);
-
 doc.text(lines,10,10);
 window.open(doc.output("bloburl"));
 doc.save("Document.pdf");
+}
+
+/* LOGIN */
+function showLogin(){loginBox.style.display="block";}
+function login(){
+localStorage.setItem("user",user.value);
+localStorage.setItem("pass",pass.value);
+alert("Login Saved");
+loginBox.style.display="none";
+}
+
+/* UPLOAD */
+function uploadResume(){
+let input=document.createElement("input");
+input.type="file";
+input.click();
 }
 
 </script>
