@@ -1,268 +1,256 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Resume Builder Pro</title>
+<title>Resume Builder</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body{
-font-family: Arial;
-margin:0;
-}
+body{margin:0;font-family:Arial;background:#f5f5f5}
 
-/* LOGIN */
-#loginPage{
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-height:100vh;
-background:#f0f0f0;
-}
-
-#loginPage input{
-margin:5px;
-padding:10px;
-width:220px;
-}
-
-#app{
-display:none;
-}
-
-/* TOP BAR */
-.topbar{
+/* NAVBAR */
+.navbar{
 display:flex;
 justify-content:space-between;
-align-items:center;
-padding:10px;
+padding:15px;
+background:#fff;
+box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+.navbar a{margin:0 10px;cursor:pointer}
+
+.btn{
 background:#4a6cf7;
 color:white;
-}
-
-/* LAYOUT */
-.container{
-display:flex;
-}
-
-.left{
-width:40%;
-padding:20px;
-background:#f4f4f4;
-height:90vh;
-overflow:auto;
-}
-
-.right{
-width:60%;
-padding:20px;
-}
-
-input, textarea{
-width:100%;
-padding:8px;
-margin-bottom:10px;
-}
-
-button{
-padding:10px;
-margin:5px;
-background:#4a6cf7;
-color:white;
+padding:8px 15px;
 border:none;
+border-radius:5px;
 cursor:pointer;
 }
 
-.preview{
-background:white;
-padding:20px;
-border:1px solid #ccc;
-min-height:85vh;
+/* HOME */
+.hero{
+text-align:center;
+padding:70px;
+background:#4a6cf7;
+color:white;
 }
 
-hr{
-border:0;
-border-top:1px solid #ccc;
+/* BUILDER */
+#builder{display:none;padding:20px}
+
+.container{display:flex;gap:20px}
+
+.form{width:40%}
+.preview{width:60%;background:white;padding:20px}
+
+/* INPUT */
+input,textarea{
+width:100%;
+padding:10px;
+margin:8px 0;
+}
+
+/* LOGIN */
+#loginBox{
+display:none;
+position:fixed;
+top:30%;
+left:40%;
+background:white;
+padding:20px;
+box-shadow:0 0 10px gray;
 }
 </style>
 </head>
 
 <body>
 
+<!-- NAV -->
+<div class="navbar">
+<h2>ResumeBuilder</h2>
+<div>
+<a onclick="goHome()">Home</a>
+<a onclick="showResume()">Resume</a>
+<a onclick="showCover()">Cover Letter</a>
+<a onclick="showLogin()">Login</a>
+<button class="btn" onclick="startBuilder()">Get Started</button>
+</div>
+</div>
+
+<!-- HOME -->
+<div id="home">
+<div class="hero">
+<h1>Build Your Resume Easily</h1>
+<button class="btn" onclick="startBuilder()">Create Resume</button>
+</div>
+</div>
+
+<!-- BUILDER -->
+<div id="builder">
+<div class="container">
+
+<div class="form" id="formArea"></div>
+
+<div class="preview">
+<h3>Preview</h3>
+<button class="btn" onclick="downloadPDF()">Download PDF</button>
+<hr>
+<div id="contentArea">Start filling form...</div>
+</div>
+
+</div>
+</div>
+
 <!-- LOGIN -->
-<div id="loginPage">
-<h2>Login</h2>
-<input id="loginEmail" placeholder="Email">
-<input id="loginPass" type="password" placeholder="Password">
+<div id="loginBox">
+<h3>Login</h3>
+<input id="user" placeholder="Username">
+<input id="pass" placeholder="Password">
 <button onclick="login()">Login</button>
 </div>
 
-<!-- APP -->
-<div id="app">
+<script>
+const $ = id => document.getElementById(id);
 
-<div class="topbar">
-<h2>Resume Builder</h2>
-<div>
-<button onclick="saveData()">Save</button>
-<button onclick="downloadPDF()">Download</button>
-<button onclick="logout()">Logout</button>
-</div>
-</div>
+let mode="resume";
 
-<div class="container">
+/* NAV */
+function startBuilder(){
+$("home").style.display="none";
+$("builder").style.display="block";
+showResume();
+}
 
-<!-- LEFT -->
-<div class="left">
+function goHome(){
+$("home").style.display="block";
+$("builder").style.display="none";
+}
 
-<input id="name" placeholder="Full Name">
+/* RESUME */
+function showResume(){
+mode="resume";
+
+$("formArea").innerHTML=`
+<h2>Resume Details</h2>
+
+<input id="fullName" placeholder="Full Name">
 <input id="email" placeholder="Email">
 <input id="phone" placeholder="Phone">
 <input id="location" placeholder="Location">
 
-<h3>Resume</h3>
 <textarea id="summary" placeholder="Summary"></textarea>
-<textarea id="education" placeholder="Education"></textarea>
 <textarea id="skills" placeholder="Skills"></textarea>
+<textarea id="education" placeholder="Education"></textarea>
 <textarea id="experience" placeholder="Experience"></textarea>
-<textarea id="projects" placeholder="Projects"></textarea>
-<textarea id="achievements" placeholder="Achievements"></textarea>
 
-<h3>Cover Letter</h3>
-<textarea id="coverLetter" placeholder="Cover Letter"></textarea>
+<button class="btn" onclick="saveResume()">Save</button>
+`;
 
-<button onclick="renderResume()">Preview Resume</button>
-<button onclick="renderCover()">Preview Cover Letter</button>
+listen();
+}
 
-</div>
+/* COVER */
+function showCover(){
+mode="cover";
 
-<!-- RIGHT -->
-<div class="right">
-<div id="preview" class="preview">Start typing...</div>
-</div>
+$("formArea").innerHTML=`
+<h2>Cover Letter</h2>
 
-</div>
-</div>
+<input id="cname" placeholder="Your Name">
+<input id="company" placeholder="Company">
+<input id="role" placeholder="Role">
 
-<script>
+<textarea id="letter" placeholder="Write letter"></textarea>
+
+<button class="btn" onclick="saveCover()">Save</button>
+`;
+
+listen();
+}
+
+/* LIVE LISTENER (FIXED) */
+function listen(){
+document.oninput=()=>{
+if(mode==="resume") updateResume();
+else updateCover();
+};
+}
+
+/* RESUME PREVIEW (FIXED NAME ISSUE) */
+function updateResume(){
+const n=$("fullName")?.value||"";
+const e=$("email")?.value||"";
+const p=$("phone")?.value||"";
+const l=$("location")?.value||"";
+
+$("contentArea").innerHTML=`
+<h2>${n}</h2>
+<p>${l} | ${p} | ${e}</p>
+<hr>
+<p><b>Summary:</b><br>${$("summary")?.value||""}</p>
+<p><b>Skills:</b><br>${$("skills")?.value||""}</p>
+<p><b>Education:</b><br>${$("education")?.value||""}</p>
+<p><b>Experience:</b><br>${$("experience")?.value||""}</p>
+`;
+}
+
+/* COVER PREVIEW */
+function updateCover(){
+$("contentArea").innerHTML=`
+<h2>${$("cname")?.value||""}</h2>
+<p>To: ${$("company")?.value||""}</p>
+<p>Role: ${$("role")?.value||""}</p>
+<hr>
+<p>${$("letter")?.value||""}</p>
+`;
+}
+
+/* SAVE RESUME */
+function saveResume(){
+localStorage.setItem("resume",JSON.stringify({
+name:$("fullName").value,
+email:$("email").value,
+phone:$("phone").value,
+location:$("location").value,
+summary:$("summary").value,
+skills:$("skills").value,
+education:$("education").value,
+experience:$("experience").value
+}));
+downloadPDF();
+}
+
+/* SAVE COVER */
+function saveCover(){
+localStorage.setItem("cover",JSON.stringify({
+name:$("cname").value,
+company:$("company").value,
+role:$("role").value,
+letter:$("letter").value
+}));
+downloadPDF();
+}
+
+/* PDF */
+function downloadPDF(){
+const { jsPDF } = window.jspdf;
+let doc = new jsPDF();
+
+doc.text(doc.splitTextToSize($("contentArea").innerText,180),10,10);
+doc.save(mode==="cover"?"cover.pdf":"resume.pdf");
+}
 
 /* LOGIN */
+function showLogin(){
+$("loginBox").style.display="block";
+}
+
 function login(){
-let e=document.getElementById("loginEmail").value;
-let p=document.getElementById("loginPass").value;
-if(e && p){
-document.getElementById("loginPage").style.display="none";
-document.getElementById("app").style.display="block";
+localStorage.setItem("user",$("user").value);
+localStorage.setItem("pass",$("pass").value);
+alert("Saved");
+$("loginBox").style.display="none";
 }
-}
-
-function logout(){
-document.getElementById("loginPage").style.display="flex";
-document.getElementById("app").style.display="none";
-}
-
-/* GET VALUE */
-function get(id){
-return document.getElementById(id).value.trim();
-}
-
-/* RESUME */
-function renderResume(){
-
-let name=get("name");
-let email=get("email");
-let phone=get("phone");
-let location=get("location");
-
-let html=`
-<div style="text-align:center;">
-<h1>${name || "Your Name"}</h1>
-<p>${location||""} | ${phone||""} | ${email||""}</p>
-<hr>
-</div>
-`;
-
-function section(t,v){
-if(!v) return "";
-return `
-<div style="margin-top:15px;">
-<h3 style="border-bottom:2px solid #4a6cf7;padding-bottom:5px;">
-${t}
-</h3>
-<p style="white-space:pre-line;">${v}</p>
-<hr>
-</div>
-`;
-}
-
-html+=section("Summary",get("summary"));
-html+=section("Education",get("education"));
-html+=section("Skills",get("skills"));
-html+=section("Experience",get("experience"));
-html+=section("Projects",get("projects"));
-html+=section("Achievements",get("achievements"));
-
-document.getElementById("preview").innerHTML=html;
-}
-
-/* COVER LETTER */
-function renderCover(){
-
-let name=get("name");
-let email=get("email");
-let phone=get("phone");
-
-let cover=get("coverLetter");
-
-document.getElementById("preview").innerHTML=`
-<div style="text-align:center;">
-<h1>${name||""}</h1>
-<p>${phone||""} | ${email||""}</p>
-<hr>
-</div>
-
-<h3 style="border-bottom:2px solid #4a6cf7;">Cover Letter</h3>
-<p style="white-space:pre-line;">${cover||""}</p>
-`;
-}
-
-/* SAVE FIXED */
-function saveData(){
-
-let data={
-name:get("name"),
-email:get("email"),
-phone:get("phone"),
-location:get("location"),
-summary:get("summary"),
-education:get("education"),
-skills:get("skills"),
-experience:get("experience"),
-projects:get("projects"),
-achievements:get("achievements"),
-coverLetter:get("coverLetter")
-};
-
-localStorage.setItem("resumeAppFINAL",JSON.stringify(data));
-alert("Saved Successfully!");
-}
-
-/* LOAD FIXED */
-window.onload=function(){
-let d=JSON.parse(localStorage.getItem("resumeAppFINAL"));
-
-if(d){
-Object.keys(d).forEach(k=>{
-if(document.getElementById(k)){
-document.getElementById(k).value=d[k];
-}
-});
-}
-};
-
-/* DOWNLOAD */
-function downloadPDF(){
-window.print();
-}
-
 </script>
 
 </body>
