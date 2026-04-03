@@ -7,22 +7,100 @@
 
 <style>
 body{margin:0;font-family:Arial}
-.navbar{display:flex;justify-content:space-between;padding:15px 40px;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,0.1);}
-.btn{background:#4a6cf7;color:#fff;padding:8px 15px;border:none;cursor:pointer;border-radius:5px;}
-.hero{background:linear-gradient(to right,#4a6cf7,#6a8dff);color:white;text-align:center;padding:80px;}
-.features{display:flex;justify-content:center;gap:20px;padding:40px;}
-.box{background:#f4f4f4;padding:20px;border-radius:10px;width:200px;text-align:center;}
+
+/* NAVBAR FIXED */
+.navbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 40px;
+background:#fff;
+box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+.navbar div{
+display:flex;
+align-items:center;
+gap:25px; /* ✅ GAP FIX */
+}
+
+.navbar a{
+cursor:pointer;
+text-decoration:none;
+color:black;
+font-weight:500;
+}
+
+.navbar a:hover{
+color:#4a6cf7;
+}
+
+.btn{
+background:#4a6cf7;
+color:#fff;
+padding:8px 15px;
+border:none;
+cursor:pointer;
+border-radius:5px;
+}
+
+/* HERO */
+.hero{
+background:linear-gradient(to right,#4a6cf7,#6a8dff);
+color:white;
+text-align:center;
+padding:80px;
+}
+
+/* FEATURES */
+.features{
+display:flex;
+justify-content:center;
+gap:20px;
+padding:40px;
+}
+.box{
+background:#f4f4f4;
+padding:20px;
+border-radius:10px;
+width:200px;
+text-align:center;
+}
+
+/* BUILDER */
 #builder{display:none;padding:20px;}
 .container{display:flex;gap:20px;}
 .form{width:40%;}
-.preview{width:60%;background:#fff;padding:20px;border:1px solid #ccc;}
-input,textarea{width:100%;margin:8px 0;padding:10px;}
-#loginBox{display:none;position:fixed;top:30%;left:40%;background:white;padding:20px;box-shadow:0 0 10px gray;}
+.preview{
+width:60%;
+background:#fff;
+padding:20px;
+border:1px solid #ccc;
+}
+
+/* INPUT */
+input,textarea{
+width:100%;
+margin:8px 0;
+padding:10px;
+}
+
+/* LOGIN */
+#loginBox{
+display:none;
+position:fixed;
+top:30%;
+left:40%;
+background:white;
+padding:20px;
+box-shadow:0 0 10px gray;
+}
 </style>
 </head>
 
 <body>
 
+<!-- NAVBAR -->
 <div class="navbar">
 <h2>ResumeBuilder</h2>
 <div>
@@ -34,6 +112,7 @@ input,textarea{width:100%;margin:8px 0;padding:10px;}
 </div>
 </div>
 
+<!-- HOME -->
 <div id="home">
 <div class="hero">
 <h1>Create a Professional Resume</h1>
@@ -48,6 +127,7 @@ input,textarea{width:100%;margin:8px 0;padding:10px;}
 </div>
 </div>
 
+<!-- BUILDER -->
 <div id="builder">
 <div class="container">
 
@@ -65,6 +145,7 @@ input,textarea{width:100%;margin:8px 0;padding:10px;}
 </div>
 </div>
 
+<!-- LOGIN -->
 <div id="loginBox">
 <h3>Login</h3>
 <input id="user" placeholder="Username"><br><br>
@@ -105,7 +186,7 @@ document.getElementById("formArea").innerHTML=`
 <button class="btn" onclick="saveData()">Save Data</button>
 `;
 
-loadData(); // ✅ LOAD SAVED DATA
+loadData();
 }
 
 /* LOAD DATA */
@@ -127,7 +208,6 @@ document.getElementById("achievements").value = data.achievements || "";
 
 /* SAVE DATA */
 function saveData(){
-
 let data={
 name:document.getElementById("name")?.value||"",
 email:document.getElementById("email")?.value||"",
@@ -142,8 +222,7 @@ achievements:document.getElementById("achievements")?.value||""
 };
 
 localStorage.setItem("resumeData",JSON.stringify(data));
-
-alert("Saved Successfully!");
+alert("Data Saved Successfully!");
 }
 
 /* LIVE PREVIEW */
@@ -180,9 +259,8 @@ document.getElementById("contentArea").innerHTML=html||"Start entering details..
 
 }
 
-/* DOWNLOAD PDF */
+/* PDF DOWNLOAD */
 function downloadPDF(){
-
 const { jsPDF } = window.jspdf;
 let doc=new jsPDF();
 
@@ -190,11 +268,7 @@ let text=document.getElementById("contentArea").innerText;
 let lines=doc.splitTextToSize(text,180);
 
 doc.text(lines,10,10);
-
-// OPEN
 window.open(doc.output("bloburl"));
-
-// DOWNLOAD
 doc.save("My_Resume.pdf");
 }
 
