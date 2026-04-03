@@ -6,12 +6,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body{
-margin:0;
-font-family:Arial;
-}
+body{margin:0;font-family:Arial;background:#f5f5f5}
 
-/* NAVBAR */
+/* NAV */
 .navbar{
 display:flex;
 justify-content:space-between;
@@ -19,10 +16,8 @@ padding:15px 40px;
 background:#fff;
 box-shadow:0 2px 5px rgba(0,0,0,0.1);
 }
-
 .navbar h2{color:#4a6cf7}
 .navbar a{margin:0 10px;cursor:pointer}
-
 .btn{
 background:#4a6cf7;
 color:#fff;
@@ -32,6 +27,10 @@ cursor:pointer;
 border-radius:5px;
 }
 
+/* THEME */
+.dark{background:#1e1e1e;color:white}
+.dark .preview{background:#2a2a2a;color:white}
+
 /* HERO */
 .hero{
 background:linear-gradient(to right,#4a6cf7,#6a8dff);
@@ -40,13 +39,13 @@ text-align:center;
 padding:80px;
 }
 
+/* FEATURES */
 .features{
 display:flex;
 justify-content:center;
 gap:20px;
 padding:40px;
 }
-
 .box{
 background:#f4f4f4;
 padding:20px;
@@ -56,53 +55,45 @@ text-align:center;
 }
 
 /* BUILDER */
-#builder{
-display:none;
-padding:20px;
-}
-
-.container{
-display:flex;
-gap:20px;
-}
-
-.form{width:40%}
+#builder{display:none;padding:20px;}
+.container{display:flex;gap:20px;}
+.form{width:40%;}
 .preview{
 width:60%;
 background:#fff;
 padding:20px;
 border:1px solid #ccc;
+min-height:500px;
 }
 
+/* INPUT */
 input,textarea{
 width:100%;
 margin:8px 0;
 padding:10px;
 }
 
-/* LOGIN */
-#loginBox{
-display:none;
-position:fixed;
-top:30%;
-left:40%;
-background:white;
-padding:20px;
-box-shadow:0 0 10px gray;
+.section{
+margin-bottom:10px;
+border-bottom:1px solid #ddd;
+padding-bottom:10px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- NAVBAR -->
+<!-- NAV -->
 <div class="navbar">
 <h2>ResumeBuilder</h2>
+
 <div>
 <a onclick="goHome()">Home</a>
 <a onclick="showResume()">Resume</a>
 <a onclick="showCover()">Cover Letter</a>
-<a onclick="showLogin()">Login</a>
+
+<button class="btn" onclick="toggleTheme()">Theme</button>
+<button class="btn" onclick="clearAll()">Clear</button>
 <button class="btn" onclick="startBuilder()">Get Started</button>
 </div>
 </div>
@@ -111,14 +102,13 @@ box-shadow:0 0 10px gray;
 <div id="home">
 <div class="hero">
 <h1>Create Professional Resume</h1>
-<p>Build Resume & Cover Letter Easily</p>
 <button class="btn" onclick="startBuilder()">Start</button>
 </div>
 
 <div class="features">
-<div class="box">Fast</div>
-<div class="box">Easy</div>
-<div class="box">Free</div>
+<div class="box">AI Resume</div>
+<div class="box">ATS Friendly</div>
+<div class="box">Instant PDF</div>
 </div>
 </div>
 
@@ -138,38 +128,27 @@ box-shadow:0 0 10px gray;
 </div>
 </div>
 
-<!-- LOGIN -->
-<div id="loginBox">
-<h3>Login</h3>
-<input id="user" placeholder="Username"><br><br>
-<input id="pass" placeholder="Password"><br><br>
-<button onclick="login()">Login</button>
-</div>
-
 <script>
 
-let mode="resume";
-
-/* NAVIGATION */
+/* NAV */
 function startBuilder(){
-home.style.display="none";
-builder.style.display="block";
+document.getElementById("home").style.display="none";
+document.getElementById("builder").style.display="block";
 showResume();
+loadData();
 }
 
 function goHome(){
-home.style.display="block";
-builder.style.display="none";
+document.getElementById("home").style.display="block";
+document.getElementById("builder").style.display="none";
 }
 
-/* ================= RESUME ================= */
+/* RESUME FORM */
 function showResume(){
-mode="resume";
-
 formArea.innerHTML=`
-<h2>Resume Builder</h2>
+<h2>Resume Details</h2>
 
-<input id="name" placeholder="Full Name">
+<input id="name" placeholder="Name">
 <input id="email" placeholder="Email">
 <input id="phone" placeholder="Phone">
 <input id="location" placeholder="Location">
@@ -180,158 +159,130 @@ formArea.innerHTML=`
 <textarea id="experience" placeholder="Experience"></textarea>
 <textarea id="projects" placeholder="Projects"></textarea>
 <textarea id="achievements" placeholder="Achievements"></textarea>
-
-<button class="btn" onclick="saveData()">Save</button>
 `;
-
-loadResumeData();
-attachResumeListener();
+attachListener();
 }
 
-/* SAVE RESUME */
-function saveData(){
-
-let data={
-name:document.getElementById("name").value||"",
-email:document.getElementById("email").value||"",
-phone:document.getElementById("phone").value||"",
-location:document.getElementById("location").value||"",
-summary:document.getElementById("summary").value||"",
-skills:document.getElementById("skills").value||"",
-education:document.getElementById("education").value||"",
-experience:document.getElementById("experience").value||"",
-projects:document.getElementById("projects").value||"",
-achievements:document.getElementById("achievements").value||""
-};
-
-localStorage.setItem("resumeData",JSON.stringify(data));
-
-alert("Resume Saved");
-downloadPDF();
-}
-
-/* LOAD RESUME */
-function loadResumeData(){
-let data=JSON.parse(localStorage.getItem("resumeData")||"{}");
-
-setTimeout(()=>{
-if(document.getElementById("name")){
-name.value=data.name||"";
-email.value=data.email||"";
-phone.value=data.phone||"";
-location.value=data.location||"";
-summary.value=data.summary||"";
-skills.value=data.skills||"";
-education.value=data.education||"";
-experience.value=data.experience||"";
-projects.value=data.projects||"";
-achievements.value=data.achievements||"";
-}
-},100);
-}
-
-/* RESUME PREVIEW */
-function attachResumeListener(){
-
-document.addEventListener("input",function(){
-
-if(mode!=="resume") return;
-
-let html="";
-
-if(name.value) html+=`<h2 style="text-align:center">${name.value}</h2>`;
-
-if(email.value||phone.value||location.value)
-html+=`<p style="text-align:center">
-${location.value} ${phone.value?"|"+phone.value:""} ${email.value?"|"+email.value:""}
-</p>`;
-
-if(summary.value) html+=`<hr><h3>Summary</h3><p>${summary.value}</p>`;
-if(skills.value) html+=`<hr><h3>Skills</h3><p>${skills.value}</p>`;
-if(education.value) html+=`<hr><h3>Education</h3><p>${education.value}</p>`;
-if(experience.value) html+=`<hr><h3>Experience</h3><p>${experience.value}</p>`;
-if(projects.value) html+=`<hr><h3>Projects</h3><p>${projects.value}</p>`;
-if(achievements.value) html+=`<hr><h3>Achievements</h3><p>${achievements.value}</p>`;
-
-contentArea.innerHTML=html;
-});
-}
-
-/* ================= COVER LETTER ================= */
+/* COVER LETTER */
 function showCover(){
-mode="cover";
-
 formArea.innerHTML=`
 <h2>Cover Letter</h2>
 
 <input id="cname" placeholder="Your Name">
 <input id="company" placeholder="Company">
 <input id="role" placeholder="Role">
-<textarea id="letter" placeholder="Write letter"></textarea>
-
-<button class="btn" onclick="saveCover()">Save</button>
+<textarea id="letter" placeholder="Letter"></textarea>
 `;
 
-loadCoverData();
 attachCoverListener();
 }
 
-/* SAVE COVER */
-function saveCover(){
+/* SAFE LISTENER - RESUME */
+function attachListener(){
+document.addEventListener("input",renderResume);
+}
 
+/* SAFE LISTENER - COVER */
+function attachCoverListener(){
+document.addEventListener("input",renderCover);
+}
+
+/* RESUME RENDER */
+function renderResume(){
+
+let n=name?.value||"";
+let e=email?.value||"";
+let p=phone?.value||"";
+let l=location?.value||"";
+
+let s=summary?.value||"";
+let sk=skills?.value||"";
+let ed=education?.value||"";
+let ex=experience?.value||"";
+let pr=projects?.value||"";
+let ac=achievements?.value||"";
+
+let html="";
+
+if(n) html+=`<h2>${n}</h2>`;
+if(e||p||l) html+=`<p>${l} | ${p} | ${e}</p>`;
+
+function add(t,v){
+if(!v) return "";
+return `<div class="section"><h3>${t}</h3><p style="white-space:pre-line">${v}</p></div>`;
+}
+
+html+=add("Summary",s);
+html+=add("Skills",sk);
+html+=add("Education",ed);
+html+=add("Experience",ex);
+html+=add("Projects",pr);
+html+=add("Achievements",ac);
+
+document.getElementById("contentArea").innerHTML=html;
+
+autoSave();
+}
+
+/* COVER RENDER */
+function renderCover(){
+
+let cn=cname?.value||"";
+let comp=company?.value||"";
+let role=role?.value||"";
+let letter=letter?.value||"";
+
+let html=`
+<h2>${cn}</h2>
+<p>${comp}</p>
+<p>${role}</p>
+<p style="white-space:pre-line">${letter}</p>
+`;
+
+document.getElementById("contentArea").innerHTML=html;
+
+localStorage.setItem("coverLetter",
+JSON.stringify({cn,comp,role,letter}));
+}
+
+/* SAVE */
+function autoSave(){
 let data={
-cn:cname.value||"",
-comp:company.value||"",
-role:role.value||"",
-letter:letter.value||""
+name:name.value,
+email:email.value,
+phone:phone.value,
+location:location.value,
+summary:summary.value,
+skills:skills.value,
+education:education.value,
+experience:experience.value,
+projects:projects.value,
+achievements:achievements.value
 };
 
-localStorage.setItem("coverData",JSON.stringify(data));
-
-alert("Cover Letter Saved");
-downloadPDF();
+localStorage.setItem("resume",JSON.stringify(data));
 }
 
-/* LOAD COVER */
-function loadCoverData(){
-let data=JSON.parse(localStorage.getItem("coverData")||"{}");
+/* LOAD */
+function loadData(){
+let d=JSON.parse(localStorage.getItem("resume")||"{}");
 
-setTimeout(()=>{
-if(document.getElementById("cname")){
-cname.value=data.cn||"";
-company.value=data.comp||"";
-role.value=data.role||"";
-letter.value=data.letter||"";
+for(let k in d){
+if(document.getElementById(k)){
+document.getElementById(k).value=d[k];
 }
-},100);
+}
 }
 
-/* COVER LISTENER */
-function attachCoverListener(){
-
-document.addEventListener("input",function(){
-
-if(mode!=="cover") return;
-
-let cn=cname.value||"";
-let comp=company.value||"";
-let roleVal=role.value||"";
-let letterVal=letter.value||"";
-
-contentArea.innerHTML=`
-<h2>${cn}</h2>
-<p><b>To:</b> ${comp}</p>
-<p><b>Subject:</b> ${roleVal}</p>
-<p>${letterVal}</p>
-`;
-});
+/* CLEAR */
+function clearAll(){
+localStorage.clear();
+location.reload();
 }
 
-/* LOGIN */
-function showLogin(){loginBox.style.display="block";}
-function login(){
-alert("Login Saved");
-loginBox.style.display="none";
+/* THEME */
+function toggleTheme(){
+document.body.classList.toggle("dark");
 }
 
 /* PDF */
@@ -339,11 +290,11 @@ function downloadPDF(){
 const { jsPDF } = window.jspdf;
 let doc=new jsPDF();
 
-doc.html(contentArea,{
-callback:function(doc){
-doc.save("document.pdf");
-}
-});
+let text=document.getElementById("contentArea").innerText;
+let lines=doc.splitTextToSize(text,180);
+
+doc.text(lines,10,10);
+doc.save("resume.pdf");
 }
 
 </script>
