@@ -1,303 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Resume Builder</title>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-<style>
-body{margin:0;font-family:Arial;background:#f5f5f5}
-
-/* NAV */
-.navbar{
-display:flex;
-justify-content:space-between;
-padding:15px 40px;
-background:#fff;
-box-shadow:0 2px 5px rgba(0,0,0,0.1);
-}
-.navbar h2{color:#4a6cf7}
-.navbar a{margin:0 10px;cursor:pointer}
-.btn{
-background:#4a6cf7;
-color:#fff;
-padding:8px 15px;
-border:none;
-cursor:pointer;
-border-radius:5px;
-}
-
-/* THEME */
-.dark{background:#1e1e1e;color:white}
-.dark .preview{background:#2a2a2a;color:white}
-
-/* HERO */
-.hero{
-background:linear-gradient(to right,#4a6cf7,#6a8dff);
-color:white;
-text-align:center;
-padding:80px;
-}
-
-/* FEATURES */
-.features{
-display:flex;
-justify-content:center;
-gap:20px;
-padding:40px;
-}
-.box{
-background:#f4f4f4;
-padding:20px;
-border-radius:10px;
-width:200px;
-text-align:center;
-}
-
-/* BUILDER */
-#builder{display:none;padding:20px;}
-.container{display:flex;gap:20px;}
-.form{width:40%;}
-.preview{
-width:60%;
-background:#fff;
-padding:20px;
-border:1px solid #ccc;
-min-height:500px;
-}
-
-/* INPUT */
-input,textarea{
-width:100%;
-margin:8px 0;
-padding:10px;
-}
-
-.section{
-margin-bottom:10px;
-border-bottom:1px solid #ddd;
-padding-bottom:10px;
-}
-</style>
+<title>Resume Builder Pro</title>
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<!-- NAV -->
-<div class="navbar">
-<h2>ResumeBuilder</h2>
+<!-- ================= LOGIN PAGE ================= -->
+<div id="loginPage" class="loginPage">
+  <h2>Login</h2>
 
-<div>
-<a onclick="goHome()">Home</a>
-<a onclick="showResume()">Resume</a>
-<a onclick="showCover()">Cover Letter</a>
+  <input id="loginEmail" placeholder="Email">
+  <input id="loginPass" type="password" placeholder="Password">
 
-<button class="btn" onclick="toggleTheme()">Theme</button>
-<button class="btn" onclick="clearAll()">Clear</button>
-<button class="btn" onclick="startBuilder()">Get Started</button>
-</div>
+  <button onclick="login()">Login</button>
 </div>
 
-<!-- HOME -->
-<div id="home">
-<div class="hero">
-<h1>Create Professional Resume</h1>
-<button class="btn" onclick="startBuilder()">Start</button>
+<!-- ================= MAIN APP ================= -->
+<div id="app" class="app hidden">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <h2>Resume Builder</h2>
+
+  <button onclick="saveData()">Save</button>
+  <button onclick="downloadPDF()">Download PDF</button>
+  <button onclick="logout()">Logout</button>
 </div>
 
-<div class="features">
-<div class="box">AI Resume</div>
-<div class="box">ATS Friendly</div>
-<div class="box">Instant PDF</div>
-</div>
-</div>
-
-<!-- BUILDER -->
-<div id="builder">
 <div class="container">
 
-<div class="form" id="formArea"></div>
+<!-- LEFT INPUT -->
+<div class="left">
 
-<div class="preview">
-<h3>Preview</h3>
-<button class="btn" onclick="downloadPDF()">Download PDF</button>
-<hr>
-<div id="contentArea">Start entering details...</div>
-</div>
-
-</div>
-</div>
-
-<script>
-
-/* NAV */
-function startBuilder(){
-document.getElementById("home").style.display="none";
-document.getElementById("builder").style.display="block";
-showResume();
-loadData();
-}
-
-function goHome(){
-document.getElementById("home").style.display="block";
-document.getElementById("builder").style.display="none";
-}
-
-/* RESUME FORM */
-function showResume(){
-formArea.innerHTML=`
-<h2>Resume Details</h2>
-
-<input id="name" placeholder="Name">
+<input id="name" placeholder="Full Name">
 <input id="email" placeholder="Email">
 <input id="phone" placeholder="Phone">
 <input id="location" placeholder="Location">
 
+<h3>Resume</h3>
 <textarea id="summary" placeholder="Summary"></textarea>
-<textarea id="skills" placeholder="Skills"></textarea>
 <textarea id="education" placeholder="Education"></textarea>
+<textarea id="skills" placeholder="Skills"></textarea>
 <textarea id="experience" placeholder="Experience"></textarea>
 <textarea id="projects" placeholder="Projects"></textarea>
 <textarea id="achievements" placeholder="Achievements"></textarea>
-`;
-attachListener();
-}
 
-/* COVER LETTER */
-function showCover(){
-formArea.innerHTML=`
-<h2>Cover Letter</h2>
+<h3>Cover Letter</h3>
+<textarea id="coverLetter" placeholder="Cover Letter"></textarea>
 
-<input id="cname" placeholder="Your Name">
-<input id="company" placeholder="Company">
-<input id="role" placeholder="Role">
-<textarea id="letter" placeholder="Letter"></textarea>
-`;
+<button onclick="renderResume()">Preview Resume</button>
+<button onclick="renderCover()">Preview Cover Letter</button>
 
-attachCoverListener();
-}
+</div>
 
-/* SAFE LISTENER - RESUME */
-function attachListener(){
-document.addEventListener("input",renderResume);
-}
+<!-- RIGHT PREVIEW -->
+<div class="right">
+<div id="preview" class="preview">Start typing...</div>
+</div>
 
-/* SAFE LISTENER - COVER */
-function attachCoverListener(){
-document.addEventListener("input",renderCover);
-}
+</div>
+</div>
 
-/* RESUME RENDER */
-function renderResume(){
-
-let n=name?.value||"";
-let e=email?.value||"";
-let p=phone?.value||"";
-let l=location?.value||"";
-
-let s=summary?.value||"";
-let sk=skills?.value||"";
-let ed=education?.value||"";
-let ex=experience?.value||"";
-let pr=projects?.value||"";
-let ac=achievements?.value||"";
-
-let html="";
-
-if(n) html+=`<h2>${n}</h2>`;
-if(e||p||l) html+=`<p>${l} | ${p} | ${e}</p>`;
-
-function add(t,v){
-if(!v) return "";
-return `<div class="section"><h3>${t}</h3><p style="white-space:pre-line">${v}</p></div>`;
-}
-
-html+=add("Summary",s);
-html+=add("Skills",sk);
-html+=add("Education",ed);
-html+=add("Experience",ex);
-html+=add("Projects",pr);
-html+=add("Achievements",ac);
-
-document.getElementById("contentArea").innerHTML=html;
-
-autoSave();
-}
-
-/* COVER RENDER */
-function renderCover(){
-
-let cn=cname?.value||"";
-let comp=company?.value||"";
-let role=role?.value||"";
-let letter=letter?.value||"";
-
-let html=`
-<h2>${cn}</h2>
-<p>${comp}</p>
-<p>${role}</p>
-<p style="white-space:pre-line">${letter}</p>
-`;
-
-document.getElementById("contentArea").innerHTML=html;
-
-localStorage.setItem("coverLetter",
-JSON.stringify({cn,comp,role,letter}));
-}
-
-/* SAVE */
-function autoSave(){
-let data={
-name:name.value,
-email:email.value,
-phone:phone.value,
-location:location.value,
-summary:summary.value,
-skills:skills.value,
-education:education.value,
-experience:experience.value,
-projects:projects.value,
-achievements:achievements.value
-};
-
-localStorage.setItem("resume",JSON.stringify(data));
-}
-
-/* LOAD */
-function loadData(){
-let d=JSON.parse(localStorage.getItem("resume")||"{}");
-
-for(let k in d){
-if(document.getElementById(k)){
-document.getElementById(k).value=d[k];
-}
-}
-}
-
-/* CLEAR */
-function clearAll(){
-localStorage.clear();
-location.reload();
-}
-
-/* THEME */
-function toggleTheme(){
-document.body.classList.toggle("dark");
-}
-
-/* PDF */
-function downloadPDF(){
-const { jsPDF } = window.jspdf;
-let doc=new jsPDF();
-
-let text=document.getElementById("contentArea").innerText;
-let lines=doc.splitTextToSize(text,180);
-
-doc.text(lines,10,10);
-doc.save("resume.pdf");
-}
-
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
